@@ -1,0 +1,9 @@
+#+incdir+../config
+#+incdir+../sequence
+#+incdir+../sequence_item
+#+incdir+../tests
+#+incdir+../components
+uart_uvm_pkg.sv
+uart_if.sv
+#../sva/AHB_subordinate_sva.sv
+uart_tb_top.sv
