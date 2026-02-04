@@ -1,9 +1,8 @@
-#+incdir+../config
-#+incdir+../sequence
-#+incdir+../sequence_item
-#+incdir+../tests
-#+incdir+../components
++incdir+configs
++incdir+sequences
++incdir+sequence_items
++incdir+tests
++incdir+components
 uart_uvm_pkg.sv
-uart_if.sv
-#../sva/AHB_subordinate_sva.sv
+interfaces/uart_if.sv
 uart_tb_top.sv
