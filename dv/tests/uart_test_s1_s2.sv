@@ -27,10 +27,11 @@ class uart_test_seq1_seq2 extends uart_base_test;
     super.new(name, parent);
   endfunction
   
-  task run_phase(uvm_phase phase);
+  task main_phase(uvm_phase phase);
     uart_seq1 seq1;
     uart_seq2 seq2;
-    
+    real bit_time = cfg.bit_period;
+
     phase.raise_objection(this);
     
     // Run sequence 1 (10 valid transactions)
@@ -40,15 +41,15 @@ class uart_test_seq1_seq2 extends uart_base_test;
     
     // Pause for 10 microseconds
     `uvm_info("TEST", "Pausing for 10 microseconds", UVM_LOW)
-    #10us;
+    #10_000_000;
     
     // Run sequence 2 (10 transactions with errors)
     `uvm_info("TEST", "Starting Sequence 2 - Error Transactions", UVM_LOW)
     seq2 = uart_seq2::type_id::create("seq2");
     seq2.start(env.agent.sequencer);
-    
+
     // Allow some time for monitor to collect last transactions
-    #50us;
+    #(bit_time / 2);
     
     phase.drop_objection(this);
   endtask

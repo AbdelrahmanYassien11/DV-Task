@@ -53,7 +53,8 @@ class uart_transaction extends uvm_sequence_item;
   
   // Convert to string for printing
   function string convert2string();
-    return $sformatf("Data=0x%0h, Start=%0b, Stop=%0b, Parity=%0b", 
+    return $sformatf(" \n ------------------------------------------------------------------------------------------------------ Data=0x%0h, Start=%0b, Stop=%0b, Parity=%0b --------------------------------------------------------
+                       \n -----------------------------------------------------------------------------------------------------", 
                      data, start_bit, stop_bit, parity_bit);
   endfunction
   

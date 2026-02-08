@@ -22,10 +22,10 @@
 //  Copyright (c) [2026] [Abdelrahman Mohamed Yassien]. All Rights Reserved.
 //==============================================================================
 
-`ifndef UART_DRV
-`define UART_DRV
+`ifndef BASE_DRV
+`define BASE_DRV
 
-class uart_driver extends uvm_driver#(uart_transaction);
+class base_driver extends uvm_driver#(uart_transaction);
   
   virtual uart_if vif;
   uart_config cfg;
@@ -133,4 +133,4 @@ class uart_driver extends uvm_driver#(uart_transaction);
 
 endclass
 
-`endif // UART_DRV
+`endif // BASE_DRV

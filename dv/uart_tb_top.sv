@@ -21,7 +21,7 @@
 `ifndef UART_TB
 `define UART_TB
 
-`timescale 1ns/1ps
+`timescale 1ns/1ns
 module uart_tb_top;
   
   import uvm_pkg::*;
@@ -48,7 +48,9 @@ module uart_tb_top;
   
   // Timeout watchdog
   initial begin
-    #1ms;
+    #3000_000; // 1ns/1ps = 10_000_000_000 when asked to wait 10_000_000
+                 // 1ns/1ns = 10_000_000 when asked to wait 10_000_000
+                 // 1_919_965
     `uvm_fatal("TIMEOUT", "Test timeout after 1ms")
   end
   

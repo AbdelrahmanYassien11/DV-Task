@@ -40,29 +40,35 @@ class uart_monitor extends uvm_monitor;
   
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
+    `uvm_info(get_type_name(), "Build Phase Started", UVM_LOW)
+
+    // Getter Function for Virtual Interface
     if (!uvm_config_db#(virtual uart_if)::get(this, "", "vif", vif))
-      `uvm_fatal("MONITOR", "Virtual interface not found")
+      `uvm_fatal(get_type_name(), "Virtual interface not found")
+    
+    // Getter Function for UART Config Object
     if (!uvm_config_db#(uart_config)::get(this, "", "cfg", cfg))
-      `uvm_fatal("MONITOR", "Configuration object not found")
+      `uvm_fatal(get_type_name(), "Configuration object not found")
+
+    `uvm_info(get_type_name(), "Build Phase Ended", UVM_LOW)
   endfunction
   
-  task run_phase(uvm_phase phase);
+  task main_phase(uvm_phase phase);
     uart_transaction trans;
-    
-    // Wait for reset to complete
-    @(negedge vif.rst);
-    repeat(10) @(posedge vif.clk);
-    
-    forever begin
-      trans = uart_transaction::type_id::create("trans");
-      collect_transaction(trans);
-      
-      // Print collected transaction
-      `uvm_info("MONITOR", $sformatf("Collected: %s", trans.convert2string()), UVM_HIGH)
-      
-      // Send to analysis port
-      item_collected_port.write(trans);
-    end
+    super.main_phase(phase);
+    `uvm_info(get_type_name(),"MAIN PHASE STARTED", UVM_LOW)
+
+      forever begin
+        trans = uart_transaction::type_id::create("trans");
+        collect_transaction(trans);
+        
+        // Print collected transaction
+        `uvm_info(get_type_name(), $sformatf("Collected: %s", trans.convert2string()), UVM_LOW)
+        
+        // Send to analysis port
+        item_collected_port.write(trans);
+      end
+
   endtask
   
   task collect_transaction(uart_transaction trans);
@@ -95,6 +101,6 @@ class uart_monitor extends uvm_monitor;
     #(bit_time / 2);
     
   endtask
-  
+
 endclass
 `endif

@@ -31,6 +31,8 @@ class uart_agent extends uvm_agent;
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
     
+    `uvm_info(get_type_name(), "Build Phase Started", UVM_LOW)
+
     // Get or create configuration
     if (!uvm_config_db#(uart_config)::get(this, "", "cfg", cfg)) begin
       cfg = uart_config::type_id::create("cfg");
@@ -47,13 +49,18 @@ class uart_agent extends uvm_agent;
     
     // Set configuration in config_db for child components
     uvm_config_db#(uart_config)::set(this, "*", "cfg", cfg);
+
+    `uvm_info(get_type_name(), "Build Phase Ended", UVM_LOW)
   endfunction
   
   function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
+
+    `uvm_info(get_type_name(), "Connect Phase Started", UVM_LOW)
     if (get_is_active() == UVM_ACTIVE) begin
       driver.seq_item_port.connect(sequencer.seq_item_export);
     end
+    `uvm_info(get_type_name(), "Connect Phase Ended", UVM_LOW)
   endfunction
   
 endclass
