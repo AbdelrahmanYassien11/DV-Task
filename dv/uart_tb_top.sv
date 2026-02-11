@@ -48,10 +48,10 @@ module uart_tb_top;
   
   // Timeout watchdog
   initial begin
-    #3000_000; // 1ns/1ps = 10_000_000_000 when asked to wait 10_000_000
+    #100_000_000; // 1ns/1ps = 10_000_000_000 when asked to wait 10_000_000
                  // 1ns/1ns = 10_000_000 when asked to wait 10_000_000
-                 // 1_919_965
-    `uvm_fatal("TIMEOUT", "Test timeout after 1ms")
+                 
+    `uvm_fatal("TIMEOUT", "Test timeout after 100milliseconds")
   end
   
   // Waveform dumping for debugging

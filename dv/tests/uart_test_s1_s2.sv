@@ -40,8 +40,8 @@ class uart_test_seq1_seq2 extends uart_base_test;
     seq1.start(env.agent.sequencer);
     
     // Pause for 10 microseconds
-    `uvm_info("TEST", "Pausing for 10 microseconds", UVM_LOW)
-    #10_000_000;
+    `uvm_info("TEST", "Pausing for 1 millisecond", UVM_LOW)
+    #1000_000;
     
     // Run sequence 2 (10 transactions with errors)
     `uvm_info("TEST", "Starting Sequence 2 - Error Transactions", UVM_LOW)

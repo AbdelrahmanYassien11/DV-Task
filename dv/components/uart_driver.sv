@@ -29,6 +29,8 @@ class uart_driver extends uvm_driver#(uart_transaction);
   
   virtual uart_if vif;
   uart_config cfg;
+  local int driven_pkts;
+  local real bit_time;
   
   `uvm_component_utils(uart_driver)
   
@@ -48,6 +50,8 @@ class uart_driver extends uvm_driver#(uart_transaction);
     if (!uvm_config_db#(uart_config)::get(this, "", "cfg", cfg))
       `uvm_fatal(get_type_name(), "Configuration object not found")
 
+    bit_time = cfg.bit_period;
+
     `uvm_info(get_type_name(), "Build Phase Ended", UVM_LOW)
   endfunction
   
@@ -60,41 +64,35 @@ class uart_driver extends uvm_driver#(uart_transaction);
     forever begin
       seq_item_port.get_next_item(req);
       drive_transaction(req);
+      driven_pkts++;
       seq_item_port.item_done();
     end
   endtask
   
   task drive_transaction(uart_transaction trans);
-    real bit_time = cfg.bit_period;
 
     `uvm_info(get_type_name(), $sformatf("Driving: %s", trans.convert2string()), UVM_MEDIUM)
-    
+
     // Send start bit
-    vif.driver_cb.tx <= trans.start_bit;
     vif.header = START;
     vif.state  = state_e'(trans.start_bit);
-    #(bit_time);
-    
+    uart_bits_sender({ << { trans.start_bit } });
+
 
     // Send data bits (LSB first)
-    for (int i = 0; i < 8; i++) begin
-      vif.driver_cb.tx <= trans.data[i];
-      vif.header = TX_ON;
-      vif.state  = TX;
-      #(bit_time);
-    end
+    vif.header = TX_ON;
+    vif.state  = TX;
+    uart_bits_sender({ << { trans.data } });
 
     // Send parity bit
-    vif.driver_cb.tx <= trans.parity_bit;
+    uart_bits_sender({ << { trans.parity_bit } });
     #(bit_time);
     
-
-    // Send stop bit
-    vif.driver_cb.tx <= trans.stop_bit;
+    // Send stop bits
     vif.header = STOP;
     vif.state  = state_e'(~trans.stop_bit);
-    #(bit_time);
-    
+    uart_bits_sender({ << { trans.stop_bit } });
+
     // No delay between transmissions as per requirement
   endtask
   
@@ -116,20 +114,22 @@ class uart_driver extends uvm_driver#(uart_transaction);
     `uvm_info(get_type_name(),"RESET PHASE ENDED" ,UVM_LOW)
   endtask
   
-  function void build_phase(uvm_phase phase);
-    super.build_phase(phase);
-    `uvm_info(get_type_name(), "Build Phase Started", UVM_LOW)
+  task uart_bits_sender (bit uart_tx[]);
+    foreach(uart_tx[i]) begin
+      vif.driver_cb.tx <= uart_tx[i];
+      #bit_time;
+    end
+  endtask : uart_bits_sender
 
-    // Getter Function for Virtual Interface
-    if (!uvm_config_db#(virtual uart_if)::get(this, "", "vif", vif))
-      `uvm_fatal(get_type_name(), "Virtual interface not found")
+  // Report Phase
+  function void report_phase(uvm_phase phase);
+    $display("===================================================================================================================");
+    `uvm_info(get_type_name(), 
+              $sformatf("\n Report:\n\t                             Total pkts: %0d", driven_pkts), UVM_LOW)
 
-    // Getter Function for UART Config Object    
-    if (!uvm_config_db#(uart_config)::get(this, "", "cfg", cfg))
-      `uvm_fatal(get_type_name(), "Configuration object not found")
-
-    `uvm_info(get_type_name(), "Build Phase Ended", UVM_LOW)
-  endfunction
+    `uvm_info(get_type_name(), " Report Phase Complete", UVM_LOW)
+    $display("===================================================================================================================");
+  endfunction : report_phase
 
 endclass
 

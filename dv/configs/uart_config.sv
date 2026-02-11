@@ -46,6 +46,7 @@ class uart_config extends uvm_object;
   
   function void calculate_bit_period();
     bit_period = 1000000000.0 / baud_rate; // In nanoseconds
+    `uvm_info(get_type_name(), $sformatf("BIT PERIOD = %0d", bit_period), UVM_LOW)
   endfunction
   
   function void set_baud_rate(int rate);

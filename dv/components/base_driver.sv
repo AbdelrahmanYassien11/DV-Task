@@ -29,13 +29,17 @@ class base_driver extends uvm_driver#(uart_transaction);
   
   virtual uart_if vif;
   uart_config cfg;
+  int driven_pkts;
   
   `uvm_component_utils(uart_driver)
   
+  // Constructor
   function new(string name = "uart_driver", uvm_component parent = null);
     super.new(name, parent);
   endfunction
-  
+
+  /*********************************/
+  // Build Phase
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
     `uvm_info(get_type_name(), "Build Phase Started", UVM_LOW)
@@ -51,6 +55,7 @@ class base_driver extends uvm_driver#(uart_transaction);
     `uvm_info(get_type_name(), "Build Phase Ended", UVM_LOW)
   endfunction
   
+  // Main Phase 
   task main_phase(uvm_phase phase);
     super.main_phase(phase);
     `uvm_info(get_type_name(),"MAIN PHASE STARTED", UVM_LOW)
@@ -60,6 +65,7 @@ class base_driver extends uvm_driver#(uart_transaction);
     forever begin
       seq_item_port.get_next_item(req);
       drive_transaction(req);
+      driven_pkts++;
       seq_item_port.item_done();
     end
   endtask
@@ -98,6 +104,7 @@ class base_driver extends uvm_driver#(uart_transaction);
     // No delay between transmissions as per requirement
   endtask
   
+  // Reset Phase
   task reset_phase(uvm_phase phase);
     super.reset_phase(phase);
     `uvm_info(get_type_name(),"RESET PHASE STARTED" ,UVM_LOW)
@@ -115,21 +122,14 @@ class base_driver extends uvm_driver#(uart_transaction);
     phase.drop_objection(this);
     `uvm_info(get_type_name(),"RESET PHASE ENDED" ,UVM_LOW)
   endtask
-  
-  function void build_phase(uvm_phase phase);
-    super.build_phase(phase);
-    `uvm_info(get_type_name(), "Build Phase Started", UVM_LOW)
 
-    // Getter Function for Virtual Interface
-    if (!uvm_config_db#(virtual uart_if)::get(this, "", "vif", vif))
-      `uvm_fatal(get_type_name(), "Virtual interface not found")
+  // Report Phase
+  function void report_phase(uvm_phase phase);
+    `uvm_info(get_type_name(), 
+              $sformatf("\n Report:\n\tTotal pkts: %0d", driven_pkts), UVM_LOW)
 
-    // Getter Function for UART Config Object    
-    if (!uvm_config_db#(uart_config)::get(this, "", "cfg", cfg))
-      `uvm_fatal(get_type_name(), "Configuration object not found")
-
-    `uvm_info(get_type_name(), "Build Phase Ended", UVM_LOW)
-  endfunction
+    `uvm_info(get_type_name(), " Report Phase Complete", UVM_LOW)
+  endfunction : report_phase
 
 endclass
 

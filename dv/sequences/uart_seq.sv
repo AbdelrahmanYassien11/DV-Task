@@ -39,8 +39,11 @@ class uart_seq1 extends uvm_sequence#(uart_transaction);
       start_item(trans);
       assert(trans.randomize());
       finish_item(trans);
-      `uvm_info("SEQ1", $sformatf("Sent valid transaction: %s", trans.convert2string()), UVM_MEDIUM)
+      `uvm_info(get_type_name(), $sformatf("Sent valid transaction: %s", trans.convert2string()), UVM_MEDIUM)
     end
+  
+    `uvm_info(get_type_name(), "FINISHED", UVM_LOW)
+
   endtask
   
 endclass
@@ -74,8 +77,11 @@ class uart_seq2 extends uvm_sequence#(uart_transaction);
       endcase
       
       finish_item(trans);
-      `uvm_info("SEQ2", $sformatf("Sent error transaction: %s", trans.convert2string()), UVM_MEDIUM)
+      `uvm_info(get_type_name(), $sformatf("Sent error transaction: %s", trans.convert2string()), UVM_MEDIUM)
     end
+
+    `uvm_info(get_type_name(), "FINISHED", UVM_LOW)
+
   endtask
   
 endclass

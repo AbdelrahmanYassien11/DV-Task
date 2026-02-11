@@ -28,14 +28,14 @@
 class uart_transaction extends uvm_sequence_item;
   
   // Transaction fields
-  rand bit [7:0] data;
-  rand bit start_bit;
-  rand bit stop_bit;
-  rand bit parity_bit;
+  rand bit [`TX_DATA_WIDTH-1:0]     data;
+  rand bit [`START_BITS_WIDTH-1:0]  start_bit;
+  rand bit [`STOP_BITS_WIDTH-1:0]   stop_bit;
+  rand bit [`PARITY_BITS_WIDTH-1:0] parity_bit;
   
   // Constraints for proper UART protocol
-  constraint valid_start_bit { start_bit == 1'b0; }
-  constraint valid_stop_bit { stop_bit == 1'b1; }
+  constraint valid_start_bit  { start_bit  == 'b0; }
+  constraint valid_stop_bit   { stop_bit   == 'b1; }
   constraint valid_parity_bit { parity_bit == ^data; } // Even parity
   
   // UVM macros

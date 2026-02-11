@@ -23,15 +23,12 @@ package uart_pkg;
 
 	import uvm_pkg::*;
 	`include "uvm_macros.svh"
+	`include "uart_header.svh"
 	`include "uart_config.sv"
 
 
 	typedef enum {START, STOP, TX_ON} header_e;
 	typedef enum {OK, ERR, TX} state_e;
-
-	// typedef enum {TX, IDLE}    state_e;
-
-	// typedef enum {OK, ERR}	   val_e; 
 
   	int incorrect_counter;
    	int correct_counter;
