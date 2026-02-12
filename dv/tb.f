@@ -3,6 +3,7 @@
 +incdir+sequence_items
 +incdir+tests
 +incdir+components
++incdir+components/uart_base_components
 uart_uvm_pkg.sv
 interfaces/uart_if.sv
 uart_tb_top.sv

@@ -39,6 +39,9 @@ package uart_pkg;
 
 
 	`include "uart_transaction.sv"
+
+	`include "uart_base_driver.sv"
+	`include "uart_base_monitor.sv"
 	`include "uart_sequencer.sv"
 
 	//`include "passive_agent_config.svh"

@@ -24,57 +24,13 @@
 `ifndef UART_MON
 `define UART_MON
 
-class uart_monitor extends uvm_monitor;
-  
-  virtual uart_if vif;
-  uart_config cfg;
-
-  local int mon_pkts;
-  
-  uvm_analysis_port#(uart_transaction) item_collected_port;
+class uart_monitor extends uart_base_monitor;
   
   `uvm_component_utils(uart_monitor)
   
   function new(string name = "uart_monitor", uvm_component parent = null);
     super.new(name, parent);
-    item_collected_port = new("item_collected_port", this);
   endfunction
-  
-  function void build_phase(uvm_phase phase);
-    super.build_phase(phase);
-    `uvm_info(get_type_name(), "Build Phase Started", UVM_LOW)
-
-    // Getter Function for Virtual Interface
-    if (!uvm_config_db#(virtual uart_if)::get(this, "", "vif", vif))
-      `uvm_fatal(get_type_name(), "Virtual interface not found")
-    
-    // Getter Function for UART Config Object
-    if (!uvm_config_db#(uart_config)::get(this, "", "cfg", cfg))
-      `uvm_fatal(get_type_name(), "Configuration object not found")
-
-    `uvm_info(get_type_name(), "Build Phase Ended", UVM_LOW)
-  endfunction
-  
-  task main_phase(uvm_phase phase);
-    uart_transaction trans;
-    super.main_phase(phase);
-    `uvm_info(get_type_name(),"MAIN PHASE STARTED", UVM_LOW)
-
-      forever begin
-        trans = uart_transaction::type_id::create("trans");
-        collect_transaction(trans);
-        
-        // Print collected transaction
-        `uvm_info(get_type_name(), $sformatf("Collected: %s", trans.convert2string()), UVM_LOW)
-        
-        // Increment Monitored Items Counter
-        mon_pkts++;
-
-        // Send to analysis port
-        item_collected_port.write(trans);
-      end
-
-  endtask
   
   task collect_transaction(uart_transaction trans);
     real bit_time = cfg.bit_period;
@@ -106,16 +62,6 @@ class uart_monitor extends uvm_monitor;
     #(bit_time / 2);
     
   endtask
-
-  // Report Phase
-  function void report_phase(uvm_phase phase);
-    $display("===================================================================================================================");
-    `uvm_info(get_type_name(), 
-              $sformatf("\n Report:\n\t                             Total pkts: %0d", mon_pkts), UVM_LOW)
-
-    `uvm_info(get_type_name(), " Report Phase Complete", UVM_LOW)
-    $display("===================================================================================================================");
-  endfunction : report_phase
 
 endclass
 `endif

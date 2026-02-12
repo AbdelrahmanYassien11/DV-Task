@@ -17,9 +17,9 @@
 `define UART_AGT
 class uart_agent extends uvm_agent;
   
-  uart_driver driver;
-  uart_monitor monitor;
-  uart_sequencer sequencer;
+  uart_driver uart_drv;
+  uart_monitor uart_mon;
+  uart_sequencer uart_seqr;
   uart_config cfg;
   
   `uvm_component_utils(uart_agent)
@@ -40,11 +40,11 @@ class uart_agent extends uvm_agent;
     end
     
     // Create components
-    monitor = uart_monitor::type_id::create("monitor", this);
+    uart_mon = uart_monitor::type_id::create("uart_mon", this);
     
     if (get_is_active() == UVM_ACTIVE) begin
-      driver = uart_driver::type_id::create("driver", this);
-      sequencer = uart_sequencer::type_id::create("sequencer", this);
+      uart_drv = uart_driver::type_id::create("uart_drv", this);
+      uart_seqr = uart_sequencer::type_id::create("uart_seqr", this);
     end
     
     // Set configuration in config_db for child components
@@ -58,7 +58,7 @@ class uart_agent extends uvm_agent;
 
     `uvm_info(get_type_name(), "Connect Phase Started", UVM_LOW)
     if (get_is_active() == UVM_ACTIVE) begin
-      driver.seq_item_port.connect(sequencer.seq_item_export);
+      uart_drv.seq_item_port.connect(uart_seqr.seq_item_export);
     end
     `uvm_info(get_type_name(), "Connect Phase Ended", UVM_LOW)
   endfunction
