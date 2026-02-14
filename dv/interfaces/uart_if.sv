@@ -8,16 +8,6 @@
 //   UART interface definition containing all UART signals and clocking blocks
 //   used to connect the DUT with the UVM driver and monitor.
 //
-// Parameters  :
-//   BAUD_RATE   - UART baud rate (bits per second)
-//   START_BITS  - Number of start bits  (default 1)
-//   DATA_BITS   - Number of data bits   (default 8)
-//   PARITY_BITS - Number of parity bits (default 1)
-//   STOP_BITS   - Number of stop bits   (default 1)
-//
-// Revision History:
-//   0.1 - Initial version
-//
 // Notes:
 //   - Provides modports for driver and monitor
 //   - Contains clocking blocks for synchronized signal access
@@ -39,7 +29,22 @@ interface uart_if(input bit clk);
   // TB Signals
   header_e header;
   state_e  state;
-  
+
+  // ============================================
+  // ENUMS TO VIEW VALUES IN WAVEFORM
+  // ============================================
+    header_e         header_view;
+    state_e          state_view;
+
+    //assign  header_view     = header_e'(??);
+
+  // Testbench behaviour control signals
+  bit has_checks;
+  int hang_threshold;
+  initial begin
+      has_checks = 0;
+  end
+
   // Clocking block for driver
   clocking driver_cb @(posedge clk);
     output tx;

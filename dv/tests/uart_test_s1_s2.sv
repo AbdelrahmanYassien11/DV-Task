@@ -35,18 +35,18 @@ class uart_test_seq1_seq2 extends uart_base_test;
     phase.raise_objection(this);
     
     // Run sequence 1 (10 valid transactions)
-    `uvm_info("TEST", "Starting Sequence 1 - Valid Transactions", UVM_LOW)
+    `uvm_info(get_type_name(), "Starting Sequence 1 - Valid Transactions", UVM_LOW)
     seq1 = uart_seq1::type_id::create("seq1");
-    seq1.start(env.agent.sequencer);
+    seq1.start(env_h.uart_agt.uart_seqr);
     
     // Pause for 10 microseconds
-    `uvm_info("TEST", "Pausing for 1 millisecond", UVM_LOW)
+    `uvm_info(get_type_name(), "Pausing for 1 millisecond", UVM_LOW)
     #1000_000;
     
     // Run sequence 2 (10 transactions with errors)
-    `uvm_info("TEST", "Starting Sequence 2 - Error Transactions", UVM_LOW)
+    `uvm_info(get_type_name(), "Starting Sequence 2 - Error Transactions", UVM_LOW)
     seq2 = uart_seq2::type_id::create("seq2");
-    seq2.start(env.agent.sequencer);
+    seq2.start(env_h.uart_agt.uart_seqr);
 
     // Allow some time for monitor to collect last transactions
     #(bit_time / 2);

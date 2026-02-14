@@ -24,11 +24,11 @@ package uart_pkg;
 	import uvm_pkg::*;
 	`include "uvm_macros.svh"
 	`include "uart_header.svh"
+	`include "uart_types.sv"
+	`include "test_config.sv"
+	`include "env_config.sv"
+	`include "uart_agent_config.sv"
 	`include "uart_config.sv"
-
-
-	typedef enum {START, STOP, TX_ON} header_e;
-	typedef enum {OK, ERR, TX} state_e;
 
   	int incorrect_counter;
    	int correct_counter;
@@ -65,7 +65,7 @@ package uart_pkg;
 	// `include "scoreboard.svh"
 	// `include "coverage.svh"
 
-	`include "uart_env.sv"
+	`include "env.sv"
 
 
    	//******************************************************************************************************************//

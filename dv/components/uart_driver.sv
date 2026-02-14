@@ -38,14 +38,14 @@ class uart_driver extends uart_base_driver;
     `uvm_info(get_type_name(), $sformatf("Driving: %s", trans.convert2string()), UVM_MEDIUM)
 
     // Send start bit
-    vif.header = START;
-    vif.state  = state_e'(trans.start_bit);
+    vif.header_view = START;
+    vif.state_view  = state_e'(trans.start_bit);
     uart_bits_sender({ << { trans.start_bit } });
 
 
     // Send data bits (LSB first)
-    vif.header = TX_ON;
-    vif.state  = TX;
+    vif.header_view = TX_ON;
+    vif.state_view  = TX;
     uart_bits_sender({ << { trans.data } });
 
     // Send parity bit
@@ -53,8 +53,8 @@ class uart_driver extends uart_base_driver;
     #(bit_time);
     
     // Send stop bits
-    vif.header = STOP;
-    vif.state  = state_e'(~trans.stop_bit);
+    vif.header_view = STOP;
+    vif.state_view  = state_e'(~trans.stop_bit);
     uart_bits_sender({ << { trans.stop_bit } });
 
     // No delay between transmissions as per requirement

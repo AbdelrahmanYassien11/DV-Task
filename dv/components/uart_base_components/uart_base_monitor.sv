@@ -27,6 +27,7 @@
 virtual class uart_base_monitor extends uvm_monitor;
   
   virtual uart_if vif;
+  uart_agent_config uart_agt_cfg;
   uart_config cfg;
   local int mon_pkts;
   
@@ -43,9 +44,7 @@ virtual class uart_base_monitor extends uvm_monitor;
     super.build_phase(phase);
     `uvm_info(get_type_name(), "Build Phase Started", UVM_LOW)
 
-    // Getter Function for Virtual Interface
-    if (!uvm_config_db#(virtual uart_if)::get(this, "", "vif", vif))
-      `uvm_fatal(get_type_name(), "Virtual interface not found")
+    this.vif = uart_agt_cfg.get_vif();
     
     // Getter Function for UART Config Object
     if (!uvm_config_db#(uart_config)::get(this, "", "cfg", cfg))

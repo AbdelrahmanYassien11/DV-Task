@@ -27,7 +27,7 @@
 class uart_monitor extends uart_base_monitor;
   
   `uvm_component_utils(uart_monitor)
-  
+
   function new(string name = "uart_monitor", uvm_component parent = null);
     super.new(name, parent);
   endfunction
@@ -38,7 +38,7 @@ class uart_monitor extends uart_base_monitor;
     
     // Wait for start bit (transition from 1 to 0)
     wait(vif.monitor_cb.tx == 1'b0);
-    
+    $display("a");
     // Sample start bit at mid-bit time
     #(bit_time / 2);
     trans.start_bit = vif.tx;

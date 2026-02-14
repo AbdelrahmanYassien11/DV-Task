@@ -28,6 +28,8 @@ module uart_tb_top;
   `include "uvm_macros.svh"
   import uart_pkg::*;
 
+  test_config test_cfg;
+
   // Clock generation
   bit clk;
   initial begin
@@ -40,18 +42,14 @@ module uart_tb_top;
   
   // Connect interface to config_db
   initial begin
-    uvm_config_db#(virtual uart_if)::set(null, "*", "vif", vif);
+    test_cfg = new();
+    test_cfg.set_timeout_delay(10_000_000);
+    //test_cfg.set_verbosity_level(UVM_MEDIUM); // May be obsolete because UVM provides that
+    uvm_config_db#(test_config)::set(null,"uvm_test_top", "test_cfg", test_cfg);
+    uvm_config_db#(virtual uart_if)::set(null, "uvm_test_top.env_h.uart_agt.uart_agt_cfg", "vif", vif);
     
     // Run the test
-    run_test("uart_test_seq1_seq2");
-  end
-  
-  // Timeout watchdog
-  initial begin
-    #100_000_000; // 1ns/1ps = 10_000_000_000 when asked to wait 10_000_000
-                 // 1ns/1ns = 10_000_000 when asked to wait 10_000_000
-                 
-    `uvm_fatal("TIMEOUT", "Test timeout after 100milliseconds")
+    run_test("");
   end
   
   // Waveform dumping for debugging

@@ -16,9 +16,6 @@
 //   PARITY_BITS - Number of parity bits
 //   STOP_BITS   - Number of stop bits
 //
-// Revision History:
-//   0.1 - Initial version
-//
 // Notes:
 //   - Extends uvm_object
 //   - Used by driver, monitor, and agent
@@ -54,7 +51,7 @@ class uart_config extends uvm_object;
       baud_rate = rate;
       calculate_bit_period();
     end else begin
-      `uvm_error("UART_CONFIG", $sformatf("Unsupported baud rate: %0d", rate))
+      `uvm_error(get_type_name(), $sformatf("Unsupported baud rate: %0d", rate))
     end
   endfunction
   

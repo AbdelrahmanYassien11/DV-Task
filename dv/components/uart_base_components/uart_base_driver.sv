@@ -29,6 +29,7 @@ virtual class uart_base_driver extends uvm_driver#(uart_transaction);
   
   virtual uart_if vif;
   uart_config cfg;
+  uart_agent_config uart_agt_cfg;
   protected int driven_pkts;
   protected real bit_time;
   
@@ -42,9 +43,9 @@ virtual class uart_base_driver extends uvm_driver#(uart_transaction);
     super.build_phase(phase);
     `uvm_info(get_type_name(), "Build Phase Started", UVM_LOW)
 
+    this.vif = uart_agt_cfg.get_vif();
+
     // Getter Function for Virtual Interface
-    if (!uvm_config_db#(virtual uart_if)::get(this, "", "vif", vif))
-      `uvm_fatal(get_type_name(), "Virtual interface not found")
 
     // Getter Function for UART Config Object    
     if (!uvm_config_db#(uart_config)::get(this, "", "cfg", cfg))
