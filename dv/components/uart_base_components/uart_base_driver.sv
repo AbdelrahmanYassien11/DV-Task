@@ -26,26 +26,35 @@
 `define UART_BASE_DRV
 
 virtual class uart_base_driver extends uvm_driver#(uart_transaction);
-  
+  `uvm_analysis_imp_decl(_seq)
+
   virtual uart_if vif;
   uart_config cfg;
   uart_agent_config uart_agt_cfg;
   protected int driven_pkts;
   protected real bit_time;
+
+  //----------------------------------------------- 
+  // Declare TLM component for sequence change 
+  // Probably obsolete, but lets keep it for now
+  //-----------------------------------------------------
+  uvm_analysis_imp_seq #(bit, uart_base_driver) seq_change_imp;
   
   `uvm_component_utils(uart_base_driver)
   
   function new(string name = "uart_base_driver", uvm_component parent = null);
     super.new(name, parent);
+
+    // Constructing TLM Components
+    seq_change_imp = new ("seq_change_imp", this);
   endfunction
   
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
     `uvm_info(get_type_name(), "Build Phase Started", UVM_LOW)
 
+    // Getting Virtual Interface Instance / Handle
     this.vif = uart_agt_cfg.get_vif();
-
-    // Getter Function for Virtual Interface
 
     // Getter Function for UART Config Object    
     if (!uvm_config_db#(uart_config)::get(this, "", "cfg", cfg))
@@ -62,7 +71,7 @@ virtual class uart_base_driver extends uvm_driver#(uart_transaction);
     phase.raise_objection(this);
 
     // Before reset, TX should be X
-    vif.driver_cb.tx <= 1'bx;
+    vif.tx <= 1'bx;
 
     // Apply reset
     vif.rst <= 1'b1;
@@ -70,7 +79,7 @@ virtual class uart_base_driver extends uvm_driver#(uart_transaction);
     vif.rst <= 1'b0;
     
     // After reset, TX should be 1 (idle state)
-    vif.driver_cb.tx <= 1'b1;
+    vif.tx <= 1'b1;
     repeat(5) @(posedge vif.clk);
     
     phase.drop_objection(this);
@@ -80,12 +89,16 @@ virtual class uart_base_driver extends uvm_driver#(uart_transaction);
   task main_phase(uvm_phase phase);
     super.main_phase(phase);
     `uvm_info(get_type_name(),"MAIN PHASE STARTED", UVM_LOW)
-    
-    forever begin
-      seq_item_port.get_next_item(req);
-      drive_transaction(req);
-      driven_pkts++;
-      seq_item_port.item_done();
+    while(1) begin
+      fork
+        begin
+          drive_transaction();
+        end
+        begin
+          @(posedge sequence_change_detected);
+        end
+      join_any;
+      disable fork;
     end
   endtask
 

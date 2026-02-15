@@ -19,15 +19,27 @@
 
 class env extends uvm_env;
   
+  // Environment Handle
   env_config env_cfg;
 
+  // UART Agent Handle
   uart_agent uart_agt;
+
+  // UART Agent Config Object Handle
   uart_agent_config uart_agt_cfg;
-  
+
+  // Virtual Sequencer Handle
+  v_sequencer v_seqr;
+
+  // Sequence Change TLM Component Handle
+  uvm_analysis_port #(bit) seq_change_Env2Agt_;
+
   `uvm_component_utils(env)
   
   function new(string name = "env", uvm_component parent = null);
     super.new(name, parent);
+
+    seq_change_Env2Agt_ = new("seq_change_Env2Agt_", this);
   endfunction
   
   function void build_phase(uvm_phase phase);
@@ -47,6 +59,14 @@ class env extends uvm_env;
   function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
     `uvm_info(get_type_name(), "connect Phase Started", UVM_LOW)
+
+    // Handing over the seqr handle to the v_sequencer
+    v_seqr.UART_seqr = uart_agt.uart_seqr;
+
+    // Connecting TLM Components
+    v_seqr.seq_change_detected_ap.connect(seq_change_Env2Agt_);
+    seq_change_Env2Agt_.connect(uart_agt.seq_change_Env2Agt_);
+
     `uvm_info(get_type_name(), "Connect Phase Ended", UVM_LOW)
   endfunction
   

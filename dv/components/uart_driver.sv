@@ -33,38 +33,44 @@ class uart_driver extends uart_base_driver;
     super.new(name, parent);
   endfunction 
 
-  task drive_transaction(uart_transaction trans);
+  virtual task drive_transaction();
+    uart_transaction trans;
+    forever begin
+      seq_item_port.get_next_item(trans);
+      driven_pkts++;
+      `uvm_info(get_type_name(), $sformatf("Driving Item Number %0d: %s", driven_pkts, trans.convert2string()), UVM_LOW)
 
-    `uvm_info(get_type_name(), $sformatf("Driving: %s", trans.convert2string()), UVM_MEDIUM)
-
-    // Send start bit
-    vif.header_view = START;
-    vif.state_view  = state_e'(trans.start_bit);
-    uart_bits_sender({ << { trans.start_bit } });
+      // Send start bit
+      vif.header_view = START;
+      vif.state_view  = state_e'(trans.start_bit);
+      uart_bits_sender({ << { trans.start_bit } });
 
 
-    // Send data bits (LSB first)
-    vif.header_view = TX_ON;
-    vif.state_view  = TX;
-    uart_bits_sender({ << { trans.data } });
+      // Send data bits (LSB first)
+      vif.header_view = TX_ON;
+      vif.state_view  = TX;
+      uart_bits_sender({ << { trans.data } });
 
-    // Send parity bit
-    uart_bits_sender({ << { trans.parity_bit } });
-    #(bit_time);
-    
-    // Send stop bits
-    vif.header_view = STOP;
-    vif.state_view  = state_e'(~trans.stop_bit);
-    uart_bits_sender({ << { trans.stop_bit } });
+      // Send parity bit
+      uart_bits_sender({ << { trans.parity_bit } });
+      
+      // Send stop bits
+      vif.header_view = STOP;
+      vif.state_view  = state_e'(~trans.stop_bit);
+      uart_bits_sender({ << { trans.stop_bit } });
 
-    // No delay between transmissions as per requirement
+      seq_item_port.item_done();
+
+      // No delay between transmissions as per requirement
+    end
   endtask
   
   task uart_bits_sender (bit uart_tx[]);
     foreach(uart_tx[i]) begin
-      vif.driver_cb.tx <= uart_tx[i];
+      vif.tx <= uart_tx[i];
       #bit_time;
     end
+    $display("TIME: %0t", $realtime);
   endtask : uart_bits_sender
 
 endclass

@@ -52,26 +52,22 @@ virtual class uart_base_monitor extends uvm_monitor;
 
     `uvm_info(get_type_name(), "Build Phase Ended", UVM_LOW)
   endfunction
-  
+
   task main_phase(uvm_phase phase);
-    uart_transaction trans;
     super.main_phase(phase);
     `uvm_info(get_type_name(),"MAIN PHASE STARTED", UVM_LOW)
-
-      forever begin
-        trans = uart_transaction::type_id::create("trans");
-        collect_transaction(trans);
-        
-        // Print collected transaction
-        `uvm_info(get_type_name(), $sformatf("Collected: %s", trans.convert2string()), UVM_LOW)
-        
-        // Increment Monitored Items Counter
-        mon_pkts++;
-
-        // Send to analysis port
-        item_collected_port.write(trans);
-      end
-
+    
+    while(1) begin
+      fork
+        begin
+          collect_transaction();
+        end
+        begin
+          @(posedge sequence_change_detected);
+        end
+      join_any;
+      disable fork;
+    end
   endtask
 
   pure virtual task collect_transaction(uart_transaction trans);

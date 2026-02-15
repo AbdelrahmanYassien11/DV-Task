@@ -23,6 +23,10 @@ class uart_agent extends uvm_agent;
   uart_config cfg;
   uart_agent_config uart_agt_cfg;
   
+  uvm_analysis_export #(bit) seq_change_Env2Agt_;
+  uvm_analysis_export #(bit) seq_change_Agt2Mon_;
+  uvm_analysis_export #(bit) seq_change_Agt2Drv_;
+
   `uvm_component_utils(uart_agent)
   
   function new(string name = "uart_agent", uvm_component parent = null);
@@ -42,14 +46,25 @@ class uart_agent extends uvm_agent;
       cfg.set_baud_rate(115200);
     end
 
-    // Create components
+    // Constructing TLM Components
+    seq_change_Env2Agt_ = new("seq_change_Env2Agt_", this);
+    seq_change_Agt2Mon_ = new("seq_change_Agt2Mon_", this);
+
+    // Create Passive Agent components
     uart_mon = uart_monitor::type_id::create("uart_mon", this);
     uart_mon.uart_agt_cfg = uart_agt_cfg;
     
     if (uart_agt_cfg.get_is_active() == UVM_ACTIVE) begin
+      // Creating ACtive Agent Components
       uart_drv = uart_driver::type_id::create("uart_drv", this);
       uart_seqr = uart_sequencer::type_id::create("uart_seqr", this);
+
+      // Handing Driver the UART Config Handle to Hand over the Virtual Interface Instance
       uart_drv.uart_agt_cfg = uart_agt_cfg;
+
+      // Constructing TLM Components
+      seq_change_Agt2Drv_ = new("seq_change_Agt2Drv_", this);
+
     end
     
     // Set configuration in config_db for child components
@@ -62,8 +77,14 @@ class uart_agent extends uvm_agent;
     super.connect_phase(phase);
 
     `uvm_info(get_type_name(), "Connect Phase Started", UVM_LOW)
+
+    seq_change_Env2Agt_.connect(seq_change_Agt2Mon_);
+    seq_change_Agt2Mon_.connect(uart_mon.seq_change_imp);
+
     if (uart_agt_cfg.get_is_active() == UVM_ACTIVE) begin
       uart_drv.seq_item_port.connect(uart_seqr.seq_item_export);
+      seq_change_Env2Agt_.connect(seq_change_Agt2Drv_);
+      seq_change_Agt2Drv_.connect(uart_drv.seq_change_imp);
     end
     `uvm_info(get_type_name(), "Connect Phase Ended", UVM_LOW)
   endfunction

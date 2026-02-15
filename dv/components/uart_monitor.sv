@@ -32,35 +32,49 @@ class uart_monitor extends uart_base_monitor;
     super.new(name, parent);
   endfunction
   
-  task collect_transaction(uart_transaction trans);
+  task collect_transaction();
     real bit_time = cfg.bit_period;
     bit sampled_bit;
-    
-    // Wait for start bit (transition from 1 to 0)
-    wait(vif.monitor_cb.tx == 1'b0);
-    $display("a");
-    // Sample start bit at mid-bit time
-    #(bit_time / 2);
-    trans.start_bit = vif.tx;
-    #(bit_time / 2);
-    
-    // Sample data bits (LSB first)
-    for (int i = 0; i < 8; i++) begin
+    uart_transaction trans;
+    forever begin
+
+      // Creating to prevent overwriting, because items are referenced by mem location, not value
+      trans = uart_transaction::type_id::create("trans");
+      
+      // Wait for start bit (transition from 1 to 0)
+      wait(vif.tx == 1'b0);
+
+      // Sample start bit at mid-bit time
       #(bit_time / 2);
-      trans.data[i] = vif.tx;
+      trans.start_bit = vif.tx;
       #(bit_time / 2);
+      
+      // Sample data bits (LSB first)
+      for (int i = 0; i < 8; i++) begin
+        #(bit_time / 2);
+        trans.data[i] = vif.tx;
+        #(bit_time / 2);
+      end
+      
+      // Sample parity bit
+      #(bit_time / 2);
+      trans.parity_bit = vif.tx;
+      #(bit_time / 2);
+      
+      // Sample stop bit
+      #(bit_time / 2);
+      trans.stop_bit = vif.tx;
+      #(bit_time / 2);
+
+      // Increment Monitored Items Counter
+      mon_pkts++;
+
+      // Print collected transaction
+      `uvm_info(get_type_name(), $sformatf("Collected Item Number %0d: %s", mon_pkts, trans.convert2string()), UVM_LOW)
+      
+      // Send to analysis port
+      item_collected_port.write(trans);    
     end
-    
-    // Sample parity bit
-    #(bit_time / 2);
-    trans.parity_bit = vif.tx;
-    #(bit_time / 2);
-    
-    // Sample stop bit
-    #(bit_time / 2);
-    trans.stop_bit = vif.tx;
-    #(bit_time / 2);
-    
   endtask
 
 endclass
