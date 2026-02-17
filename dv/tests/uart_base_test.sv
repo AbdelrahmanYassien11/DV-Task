@@ -2,14 +2,11 @@
 // File Name   : uart_base_test.sv
 // Author      : Abdelrahman Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
-// Created On  : 2026-02-03
+// Created On  : 2026-02-13
 //
 // Description :
 //   Base test class for UART verification. Provides common configuration,
 //   environment creation, and utility methods for all derived UART tests.
-//
-// Revision History:
-//   0.1 - Initial version
 //
 // Notes:
 //   - All UART tests must extend from this base test

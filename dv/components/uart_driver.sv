@@ -2,22 +2,12 @@
 // File Name   : uart_driver.sv
 // Author      : Abdelrahamn Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
-// Created On  : 2026-02-03
+// Created On  : 2026-02-13
 //
 // Description :
 //   UART driver module/class responsible for generating UART transactions
 //   according to the configured baud rate and frame format. Used for driving
 //   stimulus to the DUT in simulation.
-//
-// Parameters  :
-//   BAUD_RATE   - UART baud rate (bits per second)
-//   START_BITS  - Number of start bits  (default 1)
-//   DATA_BITS   - Number of data bits   (default 8)
-//   PARITY_BITS - Number of parity bits (default 1)
-//   STOP_BITS   - Number of stop bits   (default 1)
-//
-// Revision History:
-//   0.1 - Initial version
 //
 //  Copyright (c) [2026] [Abdelrahman Mohamed Yassien]. All Rights Reserved.
 //==============================================================================
@@ -26,13 +16,18 @@
 `define UART_DRV
 
 class uart_driver extends uart_base_driver;
-  
+
+  // Registering Component within Factory
   `uvm_component_utils(uart_driver)
   
+  // ======================================================== Constructor
   function new(string name = "uart_driver", uvm_component parent = null);
     super.new(name, parent);
   endfunction 
 
+  // Task that does the driving, it changes the packed type data array to unpacked type
+  // which allows scalability, meaning, TX Data, Start, Stop, or Parity bits widths can change
+  // and the Driver would still behave according to protocol
   virtual task drive_transaction();
     uart_transaction trans;
     forever begin
@@ -44,7 +39,6 @@ class uart_driver extends uart_base_driver;
       vif.header_view = START;
       vif.state_view  = state_e'(trans.start_bit);
       uart_bits_sender({ << { trans.start_bit } });
-
 
       // Send data bits (LSB first)
       vif.header_view = TX_ON;
@@ -65,12 +59,13 @@ class uart_driver extends uart_base_driver;
     end
   endtask
   
+  // A task that sends the bits over the TX wire using the virtual interface
+  // Using Dynamic Arrays allows scalability
   task uart_bits_sender (bit uart_tx[]);
     foreach(uart_tx[i]) begin
       vif.tx <= uart_tx[i];
       #bit_time;
     end
-    $display("TIME: %0t", $realtime);
   endtask : uart_bits_sender
 
 endclass

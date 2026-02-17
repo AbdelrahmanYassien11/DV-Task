@@ -1,49 +1,60 @@
 //==============================================================================
-// File Name   : uart_monitor.sv
+// File Name   : uart_base_monitor.sv
 // Author      : Abdelrahman Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
-// Created On  : 2026-02-03
+// Created On  : 2026-02-13
 //
 // Description :
-//   UART monitor class responsible for sampling UART transactions from the
-//   DUT interface and converting them into sequence items for analysis and
-//   scoreboard checking.
-//
-// Parameters  :
-//   BAUD_RATE   - UART baud rate (bits per second)
-//   START_BITS  - Number of start bits  (default 1)
-//   DATA_BITS   - Number of data bits   (default 8)
-//   PARITY_BITS - Number of parity bits (default 1)
-//   STOP_BITS   - Number of stop bits   (default 1)
-//
-// Revision History:
-//   0.1 - Initial version
+// Contains the needed base elements by the monitors and the TLM Components required
+// for comunication with the rest of the Environment
 //
 // Copyright (c) [2026] [Abdelrahman Mohamed Yassien]. All Rights Reserved.
 //==============================================================================
 `ifndef UART_BASE_MON
 `define UART_BASE_MON
 
-virtual class uart_base_monitor extends uvm_monitor;
-  
-  virtual uart_if vif;
-  uart_agent_config uart_agt_cfg;
+class uart_base_monitor extends uvm_monitor;
+
+  // Virtual Interface Handle
+  protected virtual uart_if vif;
+
+  // UART Config Object Handle
   uart_config cfg;
-  local int mon_pkts;
+
+  // UART Agent Config Handle
+  uart_agent_config uart_agt_cfg;
+
+  // Number of monitored sequence items
+  protected int unsigned mon_pkts;
   
+  // TLM Component to write monitored items to ENV -> SCB/SUB
   uvm_analysis_port#(uart_transaction) item_collected_port;
   
+  //-------------------------------------------
+  // Declare TLM component for sequence change to notify 
+  // the component when it happens, effectively killing its process  
+  //-------------------------------------------
+  uvm_analysis_export #(bit) seq_change_exp;
+  uvm_tlm_analysis_fifo #(bit) seq_change_fifo;
+
+  // Registering Component within the Factory
   `uvm_component_utils(uart_base_monitor)
   
+    // ======================================================== Constructor
   function new(string name = "uart_base_monitor", uvm_component parent = null);
     super.new(name, parent);
+    // Constructing TLM Components
+    seq_change_exp      = new ("seq_change_exp", this);
+    seq_change_fifo     = new ("seq_change_fifo", this);
     item_collected_port = new("item_collected_port", this);
   endfunction
-  
+
+  // ======================================================== Build Phase
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
     `uvm_info(get_type_name(), "Build Phase Started", UVM_LOW)
 
+    // Getting Virtual Interface Instance / Handle
     this.vif = uart_agt_cfg.get_vif();
     
     // Getter Function for UART Config Object
@@ -53,26 +64,45 @@ virtual class uart_base_monitor extends uvm_monitor;
     `uvm_info(get_type_name(), "Build Phase Ended", UVM_LOW)
   endfunction
 
+
+  // ======================================================== Connect Phase
+  function void connect_phase( uvm_phase phase);
+    super.connect_phase(phase);
+    // Connecting TLM Components
+    seq_change_exp.connect(seq_change_fifo.analysis_export);
+  endfunction : connect_phase
+
+  // ======================================================== Main Phase
   task main_phase(uvm_phase phase);
+    bit seq_change;
     super.main_phase(phase);
     `uvm_info(get_type_name(),"MAIN PHASE STARTED", UVM_LOW)
     
+    // Loop to ensure that the monitor handles sequence changes and process 
+    // killing correctly while keeping the driving functionality valid and 
+    // as inteded by the protocol  
     while(1) begin
       fork
         begin
           collect_transaction();
         end
         begin
-          @(posedge sequence_change_detected);
+          seq_change_fifo.get(seq_change);
+          seq_change = 0;
         end
       join_any;
       disable fork;
+      seq_change_fifo.get(seq_change);
+      seq_change = 0;
     end
   endtask
 
-  pure virtual task collect_transaction(uart_transaction trans);
+  // Task to collect transaction to be defined by monitor components
+  virtual task collect_transaction();
+    `uvm_fatal(get_type_name(), "Base Monitor Virtual Task Must be Overridden in Monitor");
+  endtask : collect_transaction
 
-  // Report Phase
+  // ======================================================== Report Phase
   function void report_phase(uvm_phase phase);
     $display("===================================================================================================================");
     `uvm_info(get_type_name(), 

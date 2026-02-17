@@ -2,14 +2,11 @@
 // File Name   : tb_top.sv
 // Author      : Abdelrahman Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
-// Created On  : 2026-02-03
+// Created On  : 2026-02-13
 //
 // Description :
 //   Top-level testbench module that instantiates the DUT, UART interface,
 //   and launches the UVM test environment.
-//
-// Revision History:
-//   0.1 - Initial version
 //
 // Notes:
 //   - Connects DUT with UART virtual interface
@@ -24,10 +21,14 @@
 `timescale 1ns/1ns
 module uart_tb_top;
   
+  // Importing UVM Necessities
   import uvm_pkg::*;
   `include "uvm_macros.svh"
+
+  // Importing UART UVM Hierarchy Package
   import uart_pkg::*;
 
+  // Test Configuration Object Handle
   test_config test_cfg;
 
   // Clock generation

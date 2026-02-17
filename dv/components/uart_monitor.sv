@@ -2,22 +2,12 @@
 // File Name   : uart_monitor.sv
 // Author      : Abdelrahman Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
-// Created On  : 2026-02-03
+// Created On  : 2026-02-13
 //
 // Description :
 //   UART monitor class responsible for sampling UART transactions from the
 //   DUT interface and converting them into sequence items for analysis and
 //   scoreboard checking.
-//
-// Parameters  :
-//   BAUD_RATE   - UART baud rate (bits per second)
-//   START_BITS  - Number of start bits  (default 1)
-//   DATA_BITS   - Number of data bits   (default 8)
-//   PARITY_BITS - Number of parity bits (default 1)
-//   STOP_BITS   - Number of stop bits   (default 1)
-//
-// Revision History:
-//   0.1 - Initial version
 //
 // Copyright (c) [2026] [Abdelrahman Mohamed Yassien]. All Rights Reserved.
 //==============================================================================
@@ -26,23 +16,23 @@
 
 class uart_monitor extends uart_base_monitor;
   
+  // Registering Component within Factory
   `uvm_component_utils(uart_monitor)
 
+  // ======================================================== Constructor
   function new(string name = "uart_monitor", uvm_component parent = null);
     super.new(name, parent);
   endfunction
   
+  // A task that is used to monitor the TX transactions on UART
   task collect_transaction();
     real bit_time = cfg.bit_period;
     bit sampled_bit;
     uart_transaction trans;
     forever begin
 
-      // Creating to prevent overwriting, because items are referenced by mem location, not value
+      // Creating everytime to prevent overwriting, because items are referenced by mem location, not value
       trans = uart_transaction::type_id::create("trans");
-      
-      // Wait for start bit (transition from 1 to 0)
-      wait(vif.tx == 1'b0);
 
       // Sample start bit at mid-bit time
       #(bit_time / 2);

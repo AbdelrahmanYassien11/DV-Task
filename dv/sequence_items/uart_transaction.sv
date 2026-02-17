@@ -2,20 +2,12 @@
 // File Name   : uart_transaction.sv
 // Author      : Abdelrahman Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
-// Created On  : 2026-02-03
+// Created On  : 2026-02-13
 //
 // Description :
 //   UART transaction (sequence item) class defining the UART frame fields
 //   including start bits, data bits, parity bit(s), and stop bit(s).
 //   Used by sequences and driver to generate UART stimulus.
-//
-// Parameters  :
-//   DATA_BITS   - Number of data bits   (default 8)
-//   PARITY_BITS - Number of parity bits (default 1)
-//   STOP_BITS   - Number of stop bits   (default 1)
-//
-// Revision History:
-//   0.1 - Initial version
 //
 // Notes:
 //   - Extends uvm_sequence_item
@@ -53,8 +45,7 @@ class uart_transaction extends uvm_sequence_item;
   
   // Convert to string for printing
   function string convert2string();
-    return $sformatf(" \n ------------------------------------------------------------------------------------------------------ Data=0x%0h, Start=%0b, Stop=%0b, Parity=%0b --------------------------------------------------------
-                       \n -----------------------------------------------------------------------------------------------------", 
+    return $sformatf(" \n ---------------------------------------------------------- Data=0x%0h, Start=%0b, Stop=%0b, Parity=%0b --------------------------------------------------------\n", 
                      data, start_bit, stop_bit, parity_bit);
   endfunction
   

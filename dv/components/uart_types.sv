@@ -2,7 +2,7 @@
 // File Name   : uart_types.sv
 // Author      : Abdelrahman Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
-// Created On  : 2026-02-03
+// Created On  : 2026-02-13
 //
 // Description :
 //   UART UVM package containing all UART verification components including
@@ -17,9 +17,11 @@
 `ifndef UART_TYPES
 `define UART_TYPES
 
+	// Enums for waveform viewing
 	typedef enum {START, STOP, TX_ON} header_e;
 	typedef enum {OK, ERR, TX} state_e;
 
+	// Typedef for the virtual interface
 	typedef virtual uart_if uart_vif;
 
 `endif // UART_TYPES

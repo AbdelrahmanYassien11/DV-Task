@@ -2,7 +2,7 @@
 // File Name   : env.sv
 // Author      : Abdelrahman Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
-// Created On  : 2026-02-03
+// Created On  : 2026-02-13
 //
 // Description :
 //   UART verification environment containing UART agent(s), scoreboard,
@@ -36,26 +36,35 @@ class env extends uvm_env;
 
   `uvm_component_utils(env)
   
+  // ======================================================== Constructor
   function new(string name = "env", uvm_component parent = null);
     super.new(name, parent);
 
+    // Construction of TLM Component
     seq_change_Env2Agt_ = new("seq_change_Env2Agt_", this);
   endfunction
   
+  // ======================================================== Body Task
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
     `uvm_info(get_type_name(), "Build Phase Started", UVM_LOW)
+  
+    // Environment Configuration Object Creation
     env_cfg  = env_config::type_id::create("env_cfg");
 
     // Use env_cfg settings to configure env
     // =====================================
 
     // =====================================
+
+    // Environment Components Creation
+    v_seqr = v_sequencer::type_id::create("v_seqr", this);
     uart_agt = uart_agent::type_id::create("uart_agt", this);
-    //uart_agt_cfg = uart_agent_config::type_id::create("uart_agt_cfg");
+
     `uvm_info(get_type_name(), "Build Phase Ended", UVM_LOW)
   endfunction
   
+  // ======================================================== Connect Phase
   function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
     `uvm_info(get_type_name(), "connect Phase Started", UVM_LOW)

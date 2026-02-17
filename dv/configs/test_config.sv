@@ -5,7 +5,7 @@
 // Created On  : 2026-02-13
 //
 // Description :
-//
+//   Configuration Object used to configure the test being run
 // Notes:
 //   - Extends uvm_object
 //

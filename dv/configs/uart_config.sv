@@ -11,11 +11,7 @@
 //
 // Parameters  :
 //   BAUD_RATE   - UART baud rate (bits per second)
-//   START_BITS  - Number of start bits
-//   DATA_BITS   - Number of data bits
-//   PARITY_BITS - Number of parity bits
-//   STOP_BITS   - Number of stop bits
-//
+//   UART TXN 
 // Notes:
 //   - Extends uvm_object
 //   - Used by driver, monitor, and agent

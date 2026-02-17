@@ -1,15 +1,17 @@
-/******************************************************************
- * File:   uart_agent_config.sv
- * Author: Abdelrahman Yassien
- * Email:  Abdelrahman.Yassien11@gmail.com
- * Date:   01/10/2025
- * Description: This file is the uart agent config, where the uart
- *              agent config's logic is implemented as well as needed 
- *              TLM connections.
- * 
- * Copyright (c) [2025] Abdelrahman Yassien. All Rights Reserved.
- * This file is part of the verification of AMBA uart Project.
-  ******************************************************************/
+//==============================================================================
+// File Name   : uart_agent_config.sv
+// Author      : Abdelrahman Yassien
+// Email       : Abdelrahman.Yassien11@gmail.com
+// Created On  : 2026-02-13
+//
+// Description :
+//   Configuration Component used to configure the UART Agent
+//
+// Notes:
+//   - Extends uvm_component
+//
+// Copyright (c) [2026] [Abdelrahman Mohamed Yassien]. All Rights Reserved.
+//==============================================================================
 `ifndef UART_AGT_CFG
 `define UART_AGT_CFG
 

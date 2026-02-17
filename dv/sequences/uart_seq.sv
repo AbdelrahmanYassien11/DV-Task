@@ -2,18 +2,11 @@
 // File Name   : uart_sequences.sv
 // Author      : Abdelrahman Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
-// Created On  : 2026-02-03
+// Created On  : 2026-02-13
 //
 // Description :
 //   UART sequence definitions for generating UART transaction stimulus,
 //   including random and directed test scenarios.
-//
-// Parameters  :
-//   DATA_BITS   - Number of data bits   (default 8)
-//   PARITY_BITS - Number of parity bits (default 1)
-//
-// Revision History:
-//   0.1 - Initial version
 //
 // Notes:
 //   - Contains base sequence and derived sequences

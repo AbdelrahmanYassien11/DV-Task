@@ -8,9 +8,6 @@
 //   UART UVM package containing all UART verification components including
 //   transaction, sequences, driver, monitor, agent, environment, and tests.
 //
-// Revision History:
-//   0.1 - Initial version
-//
 // Notes:
 //   - Central package for UART UVM testbench
 //   - Imported by tb_top and test files
@@ -21,9 +18,14 @@
 `define UART_PKG
 package uart_pkg;
 
+	localparam TX_DATA_WIDTH     = 8;
+	localparam START_BITS_WIDTH  = 1;
+	localparam PARITY_BITS_WIDTH = 1;
+	localparam STOP_BITS_WIDTH   = 1;
+
+
 	import uvm_pkg::*;
 	`include "uvm_macros.svh"
-	`include "uart_header.svh"
 	`include "uart_types.sv"
 	`include "test_config.sv"
 	`include "env_config.sv"
@@ -44,14 +46,8 @@ package uart_pkg;
 	`include "uart_base_monitor.sv"
 	`include "uart_sequencer.sv"
 
-	//`include "passive_agent_config.svh"
-	//`include "active_agent_config.svh"
-	//`include "env_config.svh"
-
 	// `include "predictor.svh"
 	// `include "comparator.svh"
-
-	// `include "base_sequence.svh"
 
 	`include "uart_driver.sv"
 	// `include "inputs_monitor.svh"
@@ -59,24 +55,26 @@ package uart_pkg;
 	`include "uart_monitor.sv"
 
 	`include "uart_agent.sv"
-	// `include "active_agent.svh"
-	// `include "passive_agent.svh"
 
 	// `include "scoreboard.svh"
 	// `include "coverage.svh"
 
+	`include "v_sequencer.sv"
 	`include "env.sv"
 
 
    	//******************************************************************************************************************//
-   	//												UVM AMBA AHB LITE SEQUENCES
+   	//												UVM UART SEQUENCES
    	//*****************************************************************************************************************//
 	`include "uart_seq.sv"
 
 
    	//******************************************************************************************************************//
-   	//												UVM AMBA AHB LITE TESTS
+   	//												UVM UART TESTS
    	//*****************************************************************************************************************//
+
+	`include "base_v_seq.sv"
+	`include "v_seq.sv"
 
 	`include "uart_base_test.sv"
 
@@ -85,3 +83,5 @@ package uart_pkg;
 endpackage
 
 `endif
+
+//====================================================================

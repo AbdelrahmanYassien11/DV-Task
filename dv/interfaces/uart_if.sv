@@ -2,7 +2,7 @@
 // File Name   : uart_if.sv
 // Author      : Abdelrahman Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
-// Created On  : 2026-02-03
+// Created On  : 2026-02-13
 //
 // Description :
 //   UART interface definition containing all UART signals and clocking blocks
