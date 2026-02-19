@@ -29,32 +29,39 @@ class uart_monitor extends uart_base_monitor;
     real bit_time = cfg.bit_period;
     bit sampled_bit;
     uart_transaction trans;
+    $display(" Started Monitoring Transactions %0t", $realtime());
     forever begin
 
       // Creating everytime to prevent overwriting, because items are referenced by mem location, not value
       trans = uart_transaction::type_id::create("trans");
 
       // Sample start bit at mid-bit time
-      #(bit_time / 2);
-      trans.start_bit = vif.tx;
-      #(bit_time / 2);
+      for(int i = 1; i <= START_BITS_WIDTH; i++) begin
+        #(bit_time / 2);
+        trans.start_bit[i-1] = vif.tx;
+        #(bit_time / 2);
+      end
       
       // Sample data bits (LSB first)
-      for (int i = 0; i < 8; i++) begin
+      for (int i = 1; i <= 10; i++) begin
         #(bit_time / 2);
-        trans.data[i] = vif.tx;
+        trans.data[i-1] = vif.tx;
         #(bit_time / 2);
       end
       
       // Sample parity bit
-      #(bit_time / 2);
-      trans.parity_bit = vif.tx;
-      #(bit_time / 2);
+      for (int i = 1; i <= PARITY_BITS_WIDTH; i++) begin
+        #(bit_time / 2);
+        trans.parity_bit[i-1] = vif.tx;
+        #(bit_time / 2);
+      end
       
       // Sample stop bit
-      #(bit_time / 2);
-      trans.stop_bit = vif.tx;
-      #(bit_time / 2);
+      for (int i = 1; i <= PARITY_BITS_WIDTH; i++) begin
+        #(bit_time / 2);
+        trans.stop_bit[i-1] = vif.tx;
+        #(bit_time / 2);
+      end
 
       // Increment Monitored Items Counter
       mon_pkts++;

@@ -37,7 +37,7 @@ class uart_driver extends uart_base_driver;
 
       // Send start bit
       vif.header_view = START;
-      vif.state_view  = state_e'(trans.start_bit);
+      vif.state_view  = state_e'(trans.start_bit[0]);
       uart_bits_sender({ << { trans.start_bit } });
 
       // Send data bits (LSB first)
@@ -50,7 +50,7 @@ class uart_driver extends uart_base_driver;
       
       // Send stop bits
       vif.header_view = STOP;
-      vif.state_view  = state_e'(~trans.stop_bit);
+      vif.state_view  = state_e'(~trans.stop_bit[0]);
       uart_bits_sender({ << { trans.stop_bit } });
 
       seq_item_port.item_done();

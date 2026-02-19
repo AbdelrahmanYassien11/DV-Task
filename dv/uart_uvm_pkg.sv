@@ -18,7 +18,7 @@
 `define UART_PKG
 package uart_pkg;
 
-	localparam TX_DATA_WIDTH     = 8;
+	localparam TX_DATA_WIDTH     = 9;
 	localparam START_BITS_WIDTH  = 1;
 	localparam PARITY_BITS_WIDTH = 1;
 	localparam STOP_BITS_WIDTH   = 1;

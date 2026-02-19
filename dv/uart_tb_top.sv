@@ -58,6 +58,33 @@ module uart_tb_top;
     $dumpfile("uart_tb.vcd");
     $dumpvars(0, uart_tb_top);
   end
+
+  int unsigned start_bits_width;
+  int unsigned tx_data_width;
+  int unsigned stop_bits_width;
+  initial begin
+    uvm_cmdline_processor clp = uvm_cmdline_processor::get_inst();
+    string start_bits_width_str;    
+    string tx_data_width_str;
+    string stop_bits_width_str;
+
+    start_bits_width  = START_BITS_WIDTH;
+    tx_data_width     = TX_DATA_WIDTH;
+    stop_bits_width   = STOP_BITS_WIDTH;
+    
+    if(clp.get_arg_value("+START_BITS_WIDTH=", start_bits_width_str)) begin
+      start_bits_width = start_bits_width_str.atoi();
+    end
+
+    if(clp.get_arg_value("+TX_DATA_WIDTH=", tx_data_width_str)) begin
+      tx_data_width = tx_data_width_str.atoi();
+    end
+
+    if(clp.get_arg_value("+STOP_BITS_WIDTH=", stop_bits_width_str)) begin
+      stop_bits_width = stop_bits_width_str.atoi();
+    end 
+
+  end
   
 endmodule
 

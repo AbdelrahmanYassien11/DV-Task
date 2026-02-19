@@ -32,7 +32,7 @@ class uart_seq1 extends uvm_sequence#(uart_transaction);
       start_item(trans);
       assert(trans.randomize());
       finish_item(trans);
-      `uvm_info(get_type_name(), $sformatf("Sent valid transaction: %s", trans.convert2string()), UVM_MEDIUM)
+      `uvm_info(get_type_name(), $sformatf("Sent valid transaction: %s", trans.convert2string()), UVM_LOW)
     end
   
     `uvm_info(get_type_name(), "FINISHED", UVM_LOW)
@@ -54,6 +54,7 @@ class uart_seq2 extends uvm_sequence#(uart_transaction);
   
   task body();
     uart_transaction trans;
+    bit v;
     
     repeat(10) begin
       trans = uart_transaction::type_id::create("trans");
@@ -63,14 +64,36 @@ class uart_seq2 extends uvm_sequence#(uart_transaction);
       assert(trans.randomize());
       
       // Randomly introduce errors in start, stop, or parity bits
+      // randcase
+      //   1: trans.start_bit = $urandom_range(0, 1); // Random start bit error
+      //   1: trans.stop_bit  = $urandom_range(0, 1);  // Random stop bit error
+      //   1: foreach (trans.parity_bit[i]) trans.parity_bit[i] = ~trans.parity_bit[i];   // Parity error
+      // endcase
+          
       randcase
-        1: trans.start_bit = $urandom_range(0, 1); // Random start bit error
-        1: trans.stop_bit = $urandom_range(0, 1);  // Random stop bit error
-        1: trans.parity_bit = ~trans.parity_bit;   // Parity error
+        1: begin
+            v = $urandom_range(0,1);
+            trans.start_bit = '{default: v};
+            // foreach (trans.start_bit[i])
+            //   trans.start_bit[i] = v;
+          end
+
+        1: begin
+            v = $urandom_range(0,1);
+            foreach (trans.stop_bit[i])
+              trans.stop_bit[i] = v;
+          end
+
+        1: begin
+            v = $urandom_range(0,1);
+            foreach (trans.parity_bit[i])
+              trans.parity_bit[i] = v;
+          end
       endcase
-      
+
+
       finish_item(trans);
-      `uvm_info(get_type_name(), $sformatf("Sent error transaction: %s", trans.convert2string()), UVM_MEDIUM)
+      `uvm_info(get_type_name(), $sformatf("Sent error transaction: %s", trans.convert2string()), UVM_LOW)
     end
 
     `uvm_info(get_type_name(), "FINISHED", UVM_LOW)
