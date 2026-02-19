@@ -20,18 +20,12 @@
 class uart_transaction extends uvm_sequence_item;
   
   // Transaction fields
-  // rand bit [TX_DATA_WIDTH-1:0]     data;
-  // rand bit [START_BITS_WIDTH-1:0]  start_bit;
-  // rand bit [STOP_BITS_WIDTH-1:0]   stop_bit;
-  // rand bit [PARITY_BITS_WIDTH-1:0] parity_bit;
-  
   rand bit data       [];
   rand bit start_bit  [];
   rand bit stop_bit   [];
-  rand bit parity_bit [];
+  rand bit parity_bit;
 
   // Constraints for proper UART protocol
-  //constraint valid_start_bit  { start_bit  == 'b0; }
   constraint valid_start_bit  { foreach(start_bit[i]) start_bit[i] == 1'b0; }
   constraint valid_stop_bit   { foreach(stop_bit[i]) stop_bit[i] == 1'b1; }
 
@@ -46,19 +40,17 @@ class uart_transaction extends uvm_sequence_item;
     `uvm_field_array_int(data, UVM_ALL_ON)
     `uvm_field_array_int(start_bit, UVM_ALL_ON)
     `uvm_field_array_int(stop_bit, UVM_ALL_ON)
-    `uvm_field_array_int(parity_bit, UVM_ALL_ON)
+    `uvm_field_bit(parity_bit, UVM_ALL_ON)
   `uvm_object_utils_end
   
   // Constructor
   function new(string name = "uart_transaction");
     int unsigned start_bits_width;
     int unsigned tx_data_width;
-    int unsigned parity_bits_width;
     int unsigned stop_bits_width;
 
     string start_bits_width_str;    
     string tx_data_width_str;
-    string parity_bits_width_str;
     string stop_bits_width_str;
     
     uvm_cmdline_processor clp = uvm_cmdline_processor::get_inst();
@@ -67,7 +59,6 @@ class uart_transaction extends uvm_sequence_item;
 
     start_bits_width  = START_BITS_WIDTH;
     tx_data_width     = TX_DATA_WIDTH;
-    parity_bits_width = PARITY_BITS_WIDTH;
     stop_bits_width   = STOP_BITS_WIDTH;
     
     if(clp.get_arg_value("+START_BITS_WIDTH=", start_bits_width_str)) begin
@@ -86,15 +77,10 @@ class uart_transaction extends uvm_sequence_item;
     data        = new[tx_data_width];
     parity_bit  = new[stop_bits_width];
 
-    $display("SIZES");
   endfunction
   
   // Convert to string for printing
   function string convert2string();
-    
-    // { << { parity_bit } }
-    //return $sformatf(" \n ---------------------------------------------------------- Data=0x%0h, Start=%0b, Stop=%0b, Parity=%0b --------------------------------------------------------\n", 
-    //                 data, start_bit, stop_bit, parity_bit);
     return $sformatf(" \n ---------------------------------------------------------- Data=%0p, Start=%0p, Stop=%0p, Parity=%0p --------------------------------------------------------\n", 
                      data, start_bit, stop_bit, parity_bit);
   endfunction
