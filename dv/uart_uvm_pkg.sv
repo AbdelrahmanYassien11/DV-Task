@@ -42,6 +42,9 @@ package uart_pkg;
 
 	`include "uart_transaction.sv"
 
+	//`include "uart_reg_model.sv"
+	//`include "ral_adapter.sv"
+
 	`include "uart_base_driver.sv"
 	`include "uart_base_monitor.sv"
 	`include "uart_sequencer.sv"
@@ -67,6 +70,7 @@ package uart_pkg;
    	//												UVM UART SEQUENCES
    	//*****************************************************************************************************************//
 	`include "uart_seq.sv"
+	//`include "uart_reg_write_seq.sv"
 
 
    	//******************************************************************************************************************//
@@ -77,9 +81,9 @@ package uart_pkg;
 	`include "v_seq.sv"
 
 	`include "uart_base_test.sv"
-
+	
 	`include "uart_test_s1_s2.sv"
-
+	//`include "uart_reg_test.sv"
 endpackage
 
 `endif

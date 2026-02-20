@@ -1,0 +1,4 @@
+BEGIN 3:uart_if:fast__1:work
+    hang_threshold :  1:uart_pkg:fast:work
+    tx :  1:uart_pkg:fast:work
+END 

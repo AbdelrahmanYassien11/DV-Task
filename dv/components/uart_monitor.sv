@@ -31,37 +31,23 @@ class uart_monitor extends uart_base_monitor;
     uart_transaction trans;
     $display(" Started Monitoring Transactions %0t", $realtime());
     forever begin
-
+      
       // Creating everytime to prevent overwriting, because items are referenced by mem location, not value
       trans = uart_transaction::type_id::create("trans");
-
+      
       // Sample start bit at mid-bit time
-      for(int i = 1; i <= START_BITS_WIDTH; i++) begin
-        #(bit_time / 2);
-        trans.start_bit[i-1] = vif.tx;
-        #(bit_time / 2);
-      end
+      uart_bits_collector(trans.start_bit);
       
       // Sample data bits (LSB first)
-      for (int i = 1; i <= 10; i++) begin
-        #(bit_time / 2);
-        trans.data[i-1] = vif.tx;
-        #(bit_time / 2);
-      end
+      uart_bits_collector(trans.data);
       
       // Sample parity bit
-      for (int i = 1; i <= PARITY_BITS_WIDTH; i++) begin
         #(bit_time / 2);
-        trans.parity_bit[i-1] = vif.tx;
+        trans.parity_bit = vif.tx;
         #(bit_time / 2);
-      end
       
       // Sample stop bit
-      for (int i = 1; i <= PARITY_BITS_WIDTH; i++) begin
-        #(bit_time / 2);
-        trans.stop_bit[i-1] = vif.tx;
-        #(bit_time / 2);
-      end
+      uart_bits_collector(trans.stop_bit);
 
       // Increment Monitored Items Counter
       mon_pkts++;
@@ -70,9 +56,23 @@ class uart_monitor extends uart_base_monitor;
       `uvm_info(get_type_name(), $sformatf("Collected Item Number %0d: %s", mon_pkts, trans.convert2string()), UVM_LOW)
       
       // Send to analysis port
-      item_collected_port.write(trans);    
+      item_collected_port.write(trans);
+
+      //trans.decode_reg_fields();  // Decode register fields for easier viewing
+    
     end
   endtask
+
+  // A task that sends the bits over the TX wire using the virtual interface
+  // Using Dynamic Arrays allows scalability
+  task uart_bits_collector (inout bit uart_tx[]);
+    real bit_time = cfg.bit_period;
+    foreach(uart_tx[i]) begin
+      #(bit_time / 2);
+      uart_tx[i]= vif.tx;
+      #(bit_time / 2);
+    end
+  endtask : uart_bits_collector
 
 endclass
 `endif

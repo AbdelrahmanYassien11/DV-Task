@@ -83,17 +83,11 @@ class uart_seq2 extends uvm_sequence#(uart_transaction);
             foreach (trans.stop_bit[i])
               trans.stop_bit[i] = v;
           end
-
-        1: begin
-            v = $urandom_range(0,1);
-            foreach (trans.parity_bit[i])
-              trans.parity_bit[i] = v;
-          end
       endcase
 
 
       finish_item(trans);
-      `uvm_info(get_type_name(), $sformatf("Sent error transaction: %s", trans.convert2string()), UVM_LOW)
+      `uvm_info(get_type_name(), $sformatf("Sent error transaction: %s", trans.convert2string()), UVM_MEDIUM)
     end
 
     `uvm_info(get_type_name(), "FINISHED", UVM_LOW)

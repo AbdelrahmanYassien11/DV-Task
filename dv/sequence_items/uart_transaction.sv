@@ -25,22 +25,25 @@ class uart_transaction extends uvm_sequence_item;
   rand bit stop_bit   [];
   rand bit parity_bit;
 
+  // ===== RAL Fields =====
+  bit is_write;        // Bit 0: 0=read, 1=write
+  bit [2:0] addr;      // Bits [3:1]: address
+  bit [3:0] reg_data;  // Bits [7:4]: data
+  // =====================================
+
   // Constraints for proper UART protocol
   constraint valid_start_bit  { foreach(start_bit[i]) start_bit[i] == 1'b0; }
   constraint valid_stop_bit   { foreach(stop_bit[i]) stop_bit[i] == 1'b1; }
 
   // Parity bit array must be uniform and match EVEN parity
-  constraint parity_bit_c {
-    foreach (parity_bit[i])
-      parity_bit[i] == calc_even_parity(data);
-  }
+  constraint parity_bit_c { parity_bit == calc_even_parity(data); }
 
   // UVM macros
   `uvm_object_utils_begin(uart_transaction)
     `uvm_field_array_int(data, UVM_ALL_ON)
     `uvm_field_array_int(start_bit, UVM_ALL_ON)
     `uvm_field_array_int(stop_bit, UVM_ALL_ON)
-    `uvm_field_bit(parity_bit, UVM_ALL_ON)
+    `uvm_field_int(parity_bit, UVM_ALL_ON)
   `uvm_object_utils_end
   
   // Constructor
@@ -75,14 +78,14 @@ class uart_transaction extends uvm_sequence_item;
 
     start_bit   = new[start_bits_width];
     data        = new[tx_data_width];
-    parity_bit  = new[stop_bits_width];
+    stop_bit    = new[stop_bits_width];
 
   endfunction
   
   // Convert to string for printing
   function string convert2string();
-    return $sformatf(" \n ---------------------------------------------------------- Data=%0p, Start=%0p, Stop=%0p, Parity=%0p --------------------------------------------------------\n", 
-                     data, start_bit, stop_bit, parity_bit);
+    return $sformatf(" \n ---------------------------------------------------------- Data=%0p, [%s, Addr=0x%0h, RegData=0x%0h], Start=%0p, Stop=%0p, Parity=%0p --------------------------------------------------------\n", 
+                     data, is_write? "WR" : "RD", addr, reg_data, start_bit, stop_bit, parity_bit);
   endfunction
   
   function automatic bit calc_even_parity(bit data[]);
@@ -91,9 +94,22 @@ class uart_transaction extends uvm_sequence_item;
     foreach (data[i])
       p ^= data[i];
     return p;
-  endfunction
+  endfunction : calc_even_parity
 
-
+  // ========= Encoding & Decoding Methods of RAL UART Transactions =========
+  // function void decode_reg_fields();
+  //   is_write = data[0];
+  //   addr = data[3:1];
+  //   reg_data = data[7:4];
+  // endfunction
+  
+  // function void encode_reg_fields();
+  //   data[0] = is_write;
+  //   data[3:1] = addr;
+  //   data[7:4] = reg_data;
+  //   parity_bit = ^data;
+  // endfunction
+  // ==================================
 
 endclass
 `endif

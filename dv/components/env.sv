@@ -34,6 +34,11 @@ class env extends uvm_env;
   // Sequence Change TLM Component Handle
   uvm_analysis_port #(bit) seq_change_Env2Agt_;
 
+  // ===== RAL Model Handles =====
+  // uart_reg_block reg_model;
+  // uart_reg_adapter reg_adapter;
+  // =====================================
+
   `uvm_component_utils(env)
   
   // ======================================================== Constructor
@@ -61,6 +66,18 @@ class env extends uvm_env;
     v_seqr = v_sequencer::type_id::create("v_seqr", this);
     uart_agt = uart_agent::type_id::create("uart_agt", this);
 
+    // ===== RAL Model Creation =====
+    // Create register model
+    // reg_model = uart_reg_block::type_id::create("reg_model");
+    // reg_model.build();
+    
+    // // Create adapter
+    // reg_adapter = uart_reg_adapter::type_id::create("reg_adapter");
+    
+    // // Set register model in config_db
+    // uvm_config_db#(uart_reg_block)::set(this, "*", "reg_model", reg_model);
+    // ===========================
+
     `uvm_info(get_type_name(), "Build Phase Ended", UVM_LOW)
   endfunction
   
@@ -75,6 +92,16 @@ class env extends uvm_env;
     // Connecting TLM Components
     v_seqr.seq_change_detected_ap.connect(seq_change_Env2Agt_);
     seq_change_Env2Agt_.connect(uart_agt.seq_change_Env2Agt_);
+
+
+    // ===== RAL Model Connections =====
+    // Connect register model to sequencer
+    // if (uart_agt.uart_seqr != null) begin
+    //   reg_model.default_map.set_sequencer(uart_agt.uart_seqr, reg_adapter);
+    //   reg_model.default_map.set_auto_predict(1);
+    // end
+    // ===========================
+
 
     `uvm_info(get_type_name(), "Connect Phase Ended", UVM_LOW)
   endfunction
