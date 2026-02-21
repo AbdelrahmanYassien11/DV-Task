@@ -28,7 +28,7 @@ class uart_transaction extends uvm_sequence_item;
   rand bit data       [];
   rand bit start_bit  [];
   rand bit stop_bit   [];
-  rand bit parity_bit [];
+  rand bit parity_bit;
 
   // Constraints for proper UART protocol
   //constraint valid_start_bit  { start_bit  == 'b0; }
@@ -36,29 +36,24 @@ class uart_transaction extends uvm_sequence_item;
   constraint valid_stop_bit   { foreach(stop_bit[i]) stop_bit[i] == 1'b1; }
 
   // Parity bit array must be uniform and match EVEN parity
-  constraint parity_bit_c {
-    foreach (parity_bit[i])
-      parity_bit[i] == calc_even_parity(data);
-  }
+  constraint parity_bit_c { parity_bit == calc_even_parity(data);}
 
   // UVM macros
   `uvm_object_utils_begin(uart_transaction)
     `uvm_field_array_int(data, UVM_ALL_ON)
     `uvm_field_array_int(start_bit, UVM_ALL_ON)
     `uvm_field_array_int(stop_bit, UVM_ALL_ON)
-    `uvm_field_array_int(parity_bit, UVM_ALL_ON)
+    `uvm_field_int(parity_bit, UVM_ALL_ON)
   `uvm_object_utils_end
   
   // Constructor
   function new(string name = "uart_transaction");
     int unsigned start_bits_width;
     int unsigned tx_data_width;
-    int unsigned parity_bits_width;
     int unsigned stop_bits_width;
 
     string start_bits_width_str;    
     string tx_data_width_str;
-    string parity_bits_width_str;
     string stop_bits_width_str;
     
     uvm_cmdline_processor clp = uvm_cmdline_processor::get_inst();
@@ -67,7 +62,6 @@ class uart_transaction extends uvm_sequence_item;
 
     start_bits_width  = START_BITS_WIDTH;
     tx_data_width     = TX_DATA_WIDTH;
-    parity_bits_width = PARITY_BITS_WIDTH;
     stop_bits_width   = STOP_BITS_WIDTH;
     
     if(clp.get_arg_value("+START_BITS_WIDTH=", start_bits_width_str)) begin
@@ -84,9 +78,8 @@ class uart_transaction extends uvm_sequence_item;
 
     start_bit   = new[start_bits_width];
     data        = new[tx_data_width];
-    parity_bit  = new[stop_bits_width];
+    stop_bit    = new[stop_bits_width];
 
-    $display("SIZES");
   endfunction
   
   // Convert to string for printing

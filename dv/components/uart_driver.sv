@@ -63,6 +63,7 @@ class uart_driver extends uart_base_driver;
   // Using Dynamic Arrays allows scalability
   task uart_bits_sender (bit uart_tx[]);
     foreach(uart_tx[i]) begin
+            //`uvm_info("I", $sformatf("%0d", i), UVM_LOW);
       vif.tx <= uart_tx[i];
       #bit_time;
     end
