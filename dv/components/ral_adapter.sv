@@ -16,16 +16,20 @@ class uart_reg_adapter extends uvm_reg_adapter;
     // Bits [3:1]: address
     // Bits [7:4]: data
     trans.is_write = (rw.kind == UVM_WRITE);
-    trans.addr = rw.addr[2:0];
-    trans.reg_data = rw.data[3:0];
+    trans.addr = { << { rw.addr[2:0] } };
+    trans.reg_data = { << { rw.data[3:0] } };
     trans.encode_reg_fields();
     
     // Set valid UART framing
-    trans.start_bit = 1'b0;
-    trans.stop_bit = 1'b1;
-    trans.parity_bit = ^trans.data;
+    foreach(trans.start_bit[i]) begin
+        trans.start_bit[i] = 1'b0;
+    end
+    foreach(trans.stop_bit[i]) begin
+        trans.stop_bit[i] = 1'b1;
+    end
+    trans.parity_bit = trans.calc_even_parity(trans.data);
     
-    `uvm_info(get_type_name(), $sformatf("REG2BUS: %s Addr=0x%0h Data=0x%0h -> UART byte=0x%02h", 
+    `uvm_info(get_type_name(), $sformatf("REG2BUS: %s Addr=0x%0h Data=0x%0h -> UART byte=%0p", 
               rw.kind == UVM_WRITE ? "WRITE" : "READ", rw.addr, rw.data[3:0], trans.data), UVM_HIGH)
     
     return trans;
@@ -43,11 +47,11 @@ class uart_reg_adapter extends uvm_reg_adapter;
     trans.decode_reg_fields();
     
     rw.kind = trans.is_write ? UVM_WRITE : UVM_READ;
-    rw.addr = trans.addr;
-    rw.data = trans.reg_data;
+    rw.addr = {<< { trans.addr } };
+    rw.data = { << { trans.reg_data } };
     rw.status = UVM_IS_OK;
     
-    `uvm_info(get_type_name(), $sformatf("BUS2REG: UART byte=0x%02h -> %s Addr=0x%0h Data=0x%0h", 
+    `uvm_info(get_type_name(), $sformatf("BUS2REG: UART byte=%0p -> %s Addr=%0p Data=%0p", 
               trans.data, rw.kind == UVM_WRITE ? "WRITE" : "READ", rw.addr, rw.data), UVM_HIGH)
   endfunction
   

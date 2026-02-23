@@ -59,14 +59,15 @@ module uart_tb_top;
     $dumpvars(0, uart_tb_top);
   end
 
-  int unsigned start_bits_width;
-  int unsigned tx_data_width;
-  int unsigned stop_bits_width;
   initial begin
     uvm_cmdline_processor clp = uvm_cmdline_processor::get_inst();
     string start_bits_width_str;    
     string tx_data_width_str;
     string stop_bits_width_str;
+
+    int unsigned start_bits_width;
+    int unsigned tx_data_width;
+    int unsigned stop_bits_width;
 
     start_bits_width  = START_BITS_WIDTH;
     tx_data_width     = TX_DATA_WIDTH;

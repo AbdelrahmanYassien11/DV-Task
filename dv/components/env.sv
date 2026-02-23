@@ -35,8 +35,8 @@ class env extends uvm_env;
   uvm_analysis_port #(bit) seq_change_Env2Agt_;
 
   // ===== RAL Model Handles =====
-  // uart_reg_block reg_model;
-  // uart_reg_adapter reg_adapter;
+  RegModel_SFR      reg_model;
+  uart_reg_adapter  reg_adapter;
   // =====================================
 
   `uvm_component_utils(env)
@@ -62,20 +62,24 @@ class env extends uvm_env;
 
     // =====================================
 
+    // Create adapter
+    reg_adapter = uart_reg_adapter::type_id::create("reg_adapter");
+    
     // Environment Components Creation
     v_seqr = v_sequencer::type_id::create("v_seqr", this);
     uart_agt = uart_agent::type_id::create("uart_agt", this);
 
     // ===== RAL Model Creation =====
     // Create register model
-    // reg_model = uart_reg_block::type_id::create("reg_model");
-    // reg_model.build();
+    reg_model = RegModel_SFR::type_id::create("reg_model");
+    reg_model.build();
+    reg_model.reset();
+    // reg_model.set_auto_predict(0);
+    reg_model.lock_model();
+    reg_model.print();
     
-    // // Create adapter
-    // reg_adapter = uart_reg_adapter::type_id::create("reg_adapter");
-    
-    // // Set register model in config_db
-    // uvm_config_db#(uart_reg_block)::set(this, "*", "reg_model", reg_model);
+    // Set register model in config_db
+    uvm_config_db#(RegModel_SFR)::set(uvm_root::get(), "*", "reg_model", reg_model);
     // ===========================
 
     `uvm_info(get_type_name(), "Build Phase Ended", UVM_LOW)
@@ -95,11 +99,11 @@ class env extends uvm_env;
 
 
     // ===== RAL Model Connections =====
-    // Connect register model to sequencer
-    // if (uart_agt.uart_seqr != null) begin
-    //   reg_model.default_map.set_sequencer(uart_agt.uart_seqr, reg_adapter);
-    //   reg_model.default_map.set_auto_predict(1);
-    // end
+    //Connect register model to sequencer
+    if (uart_agt.uart_seqr != null) begin
+      reg_model.default_map.set_sequencer(uart_agt.uart_seqr, reg_adapter);
+      reg_model.default_map.set_auto_predict(1);
+    end
     // ===========================
 
 

@@ -42,9 +42,9 @@ class uart_monitor extends uart_base_monitor;
       uart_bits_collector(trans.data);
       
       // Sample parity bit
-        #(bit_time / 2);
-        trans.parity_bit = vif.tx;
-        #(bit_time / 2);
+      #(bit_time / 2);
+      trans.parity_bit = vif.tx;
+      #(bit_time / 2);
       
       // Sample stop bit
       uart_bits_collector(trans.stop_bit);
@@ -58,16 +58,17 @@ class uart_monitor extends uart_base_monitor;
       // Send to analysis port
       item_collected_port.write(trans);
 
-      //trans.decode_reg_fields();  // Decode register fields for easier viewing
+      trans.decode_reg_fields();  // Decode register fields for easier viewing
     
     end
   endtask
 
-  // A task that sends the bits over the TX wire using the virtual interface
+  // A task that collects the bits over the TX wire using the virtual interface
   // Using Dynamic Arrays allows scalability
   task uart_bits_collector (inout bit uart_tx[]);
     real bit_time = cfg.bit_period;
-    foreach(uart_tx[i]) begin
+    // foreach(uart_tx[i]) begin
+    for(int i = (uart_tx.size()-1); i >= 0; i--) begin
       #(bit_time / 2);
       uart_tx[i]= vif.tx;
       #(bit_time / 2);

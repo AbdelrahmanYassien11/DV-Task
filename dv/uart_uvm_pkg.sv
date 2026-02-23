@@ -23,6 +23,9 @@ package uart_pkg;
 	localparam PARITY_BITS_WIDTH = 1;
 	localparam STOP_BITS_WIDTH   = 1;
 
+	localparam REG_WIDTH    	 = 4;
+	localparam ADDR_WIDTH	     = 3;
+
 
 	import uvm_pkg::*;
 	`include "uvm_macros.svh"
@@ -42,8 +45,8 @@ package uart_pkg;
 
 	`include "uart_transaction.sv"
 
-	//`include "uart_reg_model.sv"
-	//`include "ral_adapter.sv"
+	`include "uart_reg_model.sv"
+	`include "ral_adapter.sv"
 
 	`include "uart_base_driver.sv"
 	`include "uart_base_monitor.sv"
@@ -70,7 +73,7 @@ package uart_pkg;
    	//												UVM UART SEQUENCES
    	//*****************************************************************************************************************//
 	`include "uart_seq.sv"
-	//`include "uart_reg_write_seq.sv"
+	`include "uart_reg_write_seq.sv"
 
 
    	//******************************************************************************************************************//
@@ -83,7 +86,7 @@ package uart_pkg;
 	`include "uart_base_test.sv"
 	
 	`include "uart_test_s1_s2.sv"
-	//`include "uart_reg_test.sv"
+	`include "uart_reg_test.sv"
 endpackage
 
 `endif

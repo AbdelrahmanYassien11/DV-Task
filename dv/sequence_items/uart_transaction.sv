@@ -25,10 +25,16 @@ class uart_transaction extends uvm_sequence_item;
   rand bit stop_bit   [];
   rand bit parity_bit;
 
+  static string test_name;
+
+  local int unsigned reg_data_idx_MSB, reg_data_idx_LSB;
+  local int unsigned addr_idx_MSB, addr_idx_LSB;
+
+
   // ===== RAL Fields =====
   bit is_write;        // Bit 0: 0=read, 1=write
-  bit [2:0] addr;      // Bits [3:1]: address
-  bit [3:0] reg_data;  // Bits [7:4]: data
+  bit addr     [];      // Bits [3:1]: address
+  bit reg_data [];  // Bits [7:4]: data
   // =====================================
 
   // Constraints for proper UART protocol
@@ -58,6 +64,9 @@ class uart_transaction extends uvm_sequence_item;
     
     uvm_cmdline_processor clp = uvm_cmdline_processor::get_inst();
 
+    string reg_data_idx_MSB_str, reg_data_idx_LSB_str;
+    string addr_idx_MSB_str, addr_idx_LSB_str;
+
     super.new(name);
 
     start_bits_width  = START_BITS_WIDTH;
@@ -76,15 +85,32 @@ class uart_transaction extends uvm_sequence_item;
       stop_bits_width = stop_bits_width_str.atoi();
     end
 
+    if(!(  (clp.get_arg_value("+REG_DATA_MSB_IDX=", reg_data_idx_MSB_str))
+       & (clp.get_arg_value("+REG_DATA_LSB_IDX=",  reg_data_idx_LSB_str))
+       & (clp.get_arg_value("+ADDR_MSB_IDX=",  addr_idx_MSB_str))
+       & (clp.get_arg_value("+ADDR_LSB_IDX=",  addr_idx_LSB_str)))) begin
+        `uvm_fatal(get_type_name(), "Can't Run RAL model test without adding MSB and LSB Index of ADDR & REG_DATA")
+    end
+    else begin
+      reg_data_idx_MSB = reg_data_idx_MSB_str.atoi();
+      reg_data_idx_LSB = reg_data_idx_LSB_str.atoi();
+      addr_idx_MSB     = addr_idx_MSB_str.atoi();
+      addr_idx_LSB     = addr_idx_LSB_str.atoi();
+    end
+
     start_bit   = new[start_bits_width];
     data        = new[tx_data_width];
     stop_bit    = new[stop_bits_width];
 
+    reg_data    = new[reg_data_idx_MSB - reg_data_idx_LSB + 1];
+    addr        = new[addr_idx_MSB - addr_idx_LSB + 1];
+
+    $display("START BIT SIZE %0d", start_bit.size());
   endfunction
   
   // Convert to string for printing
   function string convert2string();
-    return $sformatf(" \n ---------------------------------------------------------- Data=%0p, [%s, Addr=0x%0h, RegData=0x%0h], Start=%0p, Stop=%0p, Parity=%0p --------------------------------------------------------\n", 
+    return $sformatf(" \n ---------------------------------------------------------- Data=%0p, [%s, Addr=%0p, RegData=%0p], Start=%0p, Stop=%0p, Parity=%0p --------------------------------------------------------\n", 
                      data, is_write? "WR" : "RD", addr, reg_data, start_bit, stop_bit, parity_bit);
   endfunction
   
@@ -97,18 +123,29 @@ class uart_transaction extends uvm_sequence_item;
   endfunction : calc_even_parity
 
   // ========= Encoding & Decoding Methods of RAL UART Transactions =========
-  // function void decode_reg_fields();
-  //   is_write = data[0];
-  //   addr = data[3:1];
-  //   reg_data = data[7:4];
-  // endfunction
+  function void decode_reg_fields();
+    is_write = data[0];
+    for(int i = addr_idx_MSB; i > addr_idx_LSB ; i--) begin
+      addr[i-addr_idx_LSB] = data[i];
+    end
+    for(int i = reg_data_idx_MSB; i > reg_data_idx_LSB ; i--) begin
+      reg_data[i-reg_data_idx_LSB] = data[i];
+    end
+  endfunction
   
-  // function void encode_reg_fields();
-  //   data[0] = is_write;
-  //   data[3:1] = addr;
-  //   data[7:4] = reg_data;
-  //   parity_bit = ^data;
-  // endfunction
+  function void encode_reg_fields();
+    data[0] = is_write;
+
+    for(int i = addr_idx_MSB; i > addr_idx_LSB ; i--) begin
+      data[i] = addr[i-addr_idx_LSB];
+    end
+
+    for(int i = reg_data_idx_MSB; i > reg_data_idx_LSB ; i--) begin
+      data[i] = reg_data[i-addr_idx_LSB];
+    end
+
+    parity_bit = calc_even_parity(data);
+  endfunction
   // ==================================
 
 endclass
