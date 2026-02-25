@@ -1,12 +1,11 @@
 //==============================================================================
-// File Name   : uart_sequences.sv
+// File Name   : uart_reg_write_seq.sv
 // Author      : Abdelrahman Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
 // Created On  : 2026-02-13
 //
 // Description :
-//   UART sequence definitions for generating UART transaction stimulus,
-//   including random and directed test scenarios.
+//   UART sequence definitions for register model writing
 //
 // Notes:
 //   - Contains base sequence and derived sequences
@@ -32,13 +31,21 @@ class uart_reg_write_seq extends uvm_sequence;
     bit [3:0] mirror_data_r1;
     bit [3:0] mirror_data_r2;
     
+    bit write_data_r1[];
+    bit write_data_r2[];
+
+    write_data_r1 = new(reg_data_idx_MSB-reg_data_idx_LSB+1);
+    write_data_r2 = new(reg_data_idx_MSB-reg_data_idx_LSB+1);
+
+ 
     // Get register model
     if(!uvm_config_db#(RegModel_SFR) :: get(uvm_root::get(), "", "reg_model", reg_model))
       `uvm_fatal(get_type_name(), "reg_model is not set at top level");
 
     // Generate random data
-    write_data_r1 = $urandom_range(0, 15);
-    write_data_r2 = $urandom_range(0, 15);
+    // Not including reset val for both
+    assert(std::randomize(write_data_r1) with { write_data_r1 inside {[1:15]}; }); 
+    assert(std::randomize(write_data_r2) with { write_data_r2 inside {[1:9], [11:15]}; });
     
     `uvm_info(get_type_name(), "=== Starting Register Write Test ===", UVM_LOW)
     
@@ -60,9 +67,6 @@ class uart_reg_write_seq extends uvm_sequence;
     if (status != UVM_IS_OK) begin
       `uvm_error(get_type_name(), "R2 write failed")
     end
-    
-    // Wait for transactions to complete
-    #20000;
     
     // Verify mirrored values
     mirror_data_r1 = reg_model.reg_blk.R1.get_mirrored_value();

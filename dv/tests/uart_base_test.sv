@@ -18,12 +18,10 @@
 `define UART_BASE_TST
 class uart_base_test extends uvm_test;
   
-  test_config test_cfg;
-
+  local test_config test_cfg;
   env env_h;
-  uart_config cfg;
+  local uart_config cfg;
 
-  
   `uvm_component_utils(uart_base_test)
   
   function new(string name = "uart_base_test", uvm_component parent = null);
@@ -46,6 +44,8 @@ class uart_base_test extends uvm_test;
     
     // Create environment
     env_h = env::type_id::create("env_h", this);
+
+    `uvm_info(get_type_name(), "Build Phase", UVM_LOW)
   endfunction
   
   function void end_of_elaboration_phase(uvm_phase phase);
@@ -53,12 +53,30 @@ class uart_base_test extends uvm_test;
     uvm_top.print_topology();
   endfunction
 
-  task run_phase(uvm_phase phase);
-    int timeout_delay = test_cfg.get_timeout_delay();
-    super.run_phase(phase);
-    #timeout_delay;
-    `uvm_fatal(get_type_name(), "Watchdog Timeout Triggered")
-  endtask : run_phase
+  task main_phase(uvm_phase phase);
+    // int timeout_delay = test_cfg.get_timeout_delay();
+    // super.run_phase(phase);
+    // #timeout_delay;
+    // `uvm_fatal(get_type_name(), "Watchdog Timeout Triggered")
+    real bit_time = cfg.bit_period;
+
+    base_vseq b_vseq;
+    super.main_phase(phase);
+    phase.raise_objection(this);
+
+    `uvm_info(get_type_name(), "Main Phase Started", UVM_LOW)
+  
+    b_vseq = base_vseq::type_id::create("b_vseq");
+
+    //v_seq.start(null); //virtual sequences can be started on NULL/no sequencer
+    b_vseq.start(env_h.v_seqr);
+
+    // Allow some time for monitor to collect last transactions
+    #(bit_time / 2);
+
+    phase.drop_objection(this);
+
+  endtask : main_phase
   
   //==================
   // Report phase

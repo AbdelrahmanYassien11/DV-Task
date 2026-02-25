@@ -1,5 +1,5 @@
 //==============================================================================
-// File Name   : base_v_seq.sv
+// File Name   : base_vseq.sv
 // Author      : Abdelrahman Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
 // Created On  : 2026-02-03
@@ -12,22 +12,22 @@
 // Copyright (c) [2026] [Abdelrahman Mohamed Yassien]. All Rights Reserved.
 //==============================================================================
 
-`ifndef BASE_V_SEQ
-`define BASE_V_SEQ
-class base_v_seq extends uvm_sequence;
+`ifndef base_vseq
+`define base_vseq
+class base_vseq extends uvm_sequence;
 
   // Sequencer Handles
   uart_sequencer		  UART_seqr;
   //rst_sequencer     seqr_RST;
 
   // Registering Object into Factory
-  `uvm_object_utils(base_v_seq)
+  `uvm_object_utils(base_vseq)
 
   // Declaring p_sequencer and giving it the virtual sequencer handle
   `uvm_declare_p_sequencer(v_sequencer)
 
   // ======================================================== Constructor
-  function new (string name = "base_v_seq");
+  function new (string name = "base_vseq");
     super.new(name);
   endfunction
 

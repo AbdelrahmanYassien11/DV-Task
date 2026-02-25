@@ -1,5 +1,5 @@
 //==============================================================================
-// File Name   : v_seq.sv
+// File Name   : task1_vseq.sv
 // Author      : Abdelrahman Yassien
 // Email       : Abdelrahman.Yassien11@gmail.com
 // Created On  : 2026-02-13
@@ -11,15 +11,15 @@
 // Copyright (c) [2026] [Abdelrahman Mohamed Yassien]. All Rights Reserved.
 //==============================================================================
 
-`ifndef V_SEQ
-`define V_SEQ
-class v_seq extends base_v_seq;
+`ifndef TASK1_VSEQ
+`define TASK1_VSEQ
+class task1_vseq extends base_vseq;
 
     // Registering Object within Factory
-    `uvm_object_utils(v_seq)
+    `uvm_object_utils(task1_vseq)
 
     // ======================================================== Constructor
-    function new (string name = "v_seq");
+    function new (string name = "task1_vseq");
         super.new(name);
     endfunction
 
@@ -54,6 +54,6 @@ class v_seq extends base_v_seq;
         uart_s2.start(p_sequencer.UART_seqr);
     endtask
 
-endclass : v_seq
+endclass : task1_vseq
 
 `endif

@@ -14,44 +14,42 @@
 //
 // Copyright (c) [2026] [Abdelrahman Mohamed Yassien]. All Rights Reserved.
 //==============================================================================
-class uart_reg_test extends uart_base_test;
+`ifndef TASK2_1_TST
+`define TASK2_1_TST
+class task2_1_test extends uart_base_test;
   
-  `uvm_component_utils(uart_reg_test)
+  `uvm_component_utils(task2_1_test)
   
-  function new(string name = "uart_reg_test", uvm_component parent = null);
+  function new(string name = "task2_1_test", uvm_component parent = null);
     super.new(name, parent);
   endfunction
   
-  function void build_phase(uvm_phase phase);
+  virtual function void build_phase(uvm_phase phase);
     uvm_cmdline_processor clp = uvm_cmdline_processor::get_inst();
     string dummy;
 
+    // Call the build_phase method of the base class
     super.build_phase(phase);
+
+
     if(!(  (clp.get_arg_value("+REG_DATA_MSB_IDX=", dummy))
        & (clp.get_arg_value("+REG_DATA_LSB_IDX=",  dummy))
        & (clp.get_arg_value("+ADDR_MSB_IDX=",  dummy))
        & (clp.get_arg_value("+ADDR_LSB_IDX=",  dummy)))) begin
         `uvm_fatal(get_type_name(), "Can't Run RAL model test without adding MSB and LSB Index of ADDR & REG_DATA")
     end
-  endfunction
 
-  task main_phase(uvm_phase phase);
-    uart_reg_write_seq seq;
-    
-    phase.raise_objection(this);
-    
-    `uvm_info("TEST", "========================================", UVM_LOW)
-    `uvm_info("TEST", "  UART Register Model Test - Task 2.1  ", UVM_LOW)
-    `uvm_info("TEST", "========================================", UVM_LOW)
-    
-    // Run register write sequence
-    seq = uart_reg_write_seq::type_id::create("seq");
-    seq.start(env_h.uart_agt.uart_seqr);
-    
-    // Allow time for completion
-    #10us;
-    
-    phase.drop_objection(this);
-  endtask
+    // Override the type of sequence used by the base_sequence class
+    base_vseq::type_id::set_type_override(task2_1_vseq::type_id::get());
+
+    // Display a message indicating the build phase of the test
+    `uvm_info(get_type_name(), "Build Phase", UVM_LOW)
+
+    `uvm_info("TEST", "=============================================", UVM_LOW)
+    `uvm_info("TEST", "  UART Sequence Valid & Error Test - Task 1  ", UVM_LOW)
+    `uvm_info("TEST", "=============================================", UVM_LOW)
+  endfunction
   
 endclass
+
+`endif

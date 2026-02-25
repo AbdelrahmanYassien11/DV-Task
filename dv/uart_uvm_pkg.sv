@@ -72,7 +72,8 @@ package uart_pkg;
    	//******************************************************************************************************************//
    	//												UVM UART SEQUENCES
    	//*****************************************************************************************************************//
-	`include "uart_seq.sv"
+	`include "uart_seq1.sv"
+	`include "uart_seq2.sv"
 	`include "uart_reg_write_seq.sv"
 
 
@@ -80,13 +81,15 @@ package uart_pkg;
    	//												UVM UART TESTS
    	//*****************************************************************************************************************//
 
-	`include "base_v_seq.sv"
-	`include "v_seq.sv"
+	`include "base_vseq.sv"
+	`include "task1_vseq.sv"
+	`include "task2_1_vseq.sv"
+	//`include "task2_1_*_vseq.sv"
 
 	`include "uart_base_test.sv"
 	
-	`include "uart_test_s1_s2.sv"
-	`include "uart_reg_test.sv"
+	`include "task1_test.sv"
+	`include "task2_1_test.sv"
 endpackage
 
 `endif
