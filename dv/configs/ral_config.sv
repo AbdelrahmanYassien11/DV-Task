@@ -39,21 +39,20 @@ class ral_config extends uvm_component;
         stop_bits_width   = STOP_BITS_WIDTH;
 
 
-        if(clp.get_arg_value("+REG_M_NUM=", reg_m_num_str)) begin
+        if(clp.get_arg_value("+REG_M_NUM=", reg_m_num_str)) begin // How many Models
             reg_m_num = reg_m_num_str.atoi();
         end
-        foreach(reg_m_num) begin
+        for(int i = 0; i < reg_m_num; i++) begin // Parse Through Each Model
             reg_m_num_q = $sformatf("reg_model_%0d", i);
             foreach(reg_m_num_q[i]) begin
                 if(clp.get_arg_value($sformatf("+REG_NUM_%0d=", i), reg_num_str)) begin
                     reg_num_q.push_back(reg_num_str.atoi());
-                    foreach(reg_num_str.atoi) begin
+                    for( int i = 0; i < reg_num_str.atoi; i++) begin
                         if(clp.get_arg_value($sformatf("+REG_FIELD_NUM_FOR_REG_NUM_%0d=", i), reg_field_num_str)) begin
                             reg_field_num_q.push_back(reg_field_num_str.atoi());
-                            foreach(reg_field_num_str.atoi()) begin
+                            for( int i = 0; i < reg_field_num_str.atoi(); i++) begin
                                 if(clp.get_arg_value($sformatf("+REG_FIELD_NUM_WIDTH_FOR_REG_NUM_%0d=", i), reg_field_num_width_str)) begin
                                     reg_field_width_num_q.push_back(reg_field_num_width_str.atoi());
-                                        
                                 end
                             end                         
                         end
