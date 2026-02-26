@@ -19,13 +19,61 @@ class ral_config extends uvm_component;
     `uvm_component_utils(ral_config)
 
     local uart_vif vif;
-    local bit has_checks = 1;
-    local int unsigned hang_threshold = 200;
-    local uvm_active_passive_enum is_active = UVM_ACTIVE;
-    local bit has_coverage = 1;
+    local int unsigned reg_model_num;
+    local int unsigned regs_num [$];
+    local int unsigned reg_fields_num[$];
+
+    //constructor
+    //------------------------------------------
+    // Construc tor for the monironment component
+    //------------------------------------------
+    function new(string name = "", uvm_component parent);
+        uvm_cmdline_processor clp = uvm_cmdline_processor::get_inst();
+
+        int unsigned reg_model_num_str;
+        int unsigned tx_data_width;
+        int unsigned stop_bits_width;
+
+        start_bits_width  = START_BITS_WIDTH;
+        tx_data_width     = TX_DATA_WIDTH;
+        stop_bits_width   = STOP_BITS_WIDTH;
+
+
+        if(clp.get_arg_value("+REG_M_NUM=", reg_m_num_str)) begin
+            reg_m_num = reg_m_num_str.atoi();
+        end
+        foreach(reg_m_num) begin
+            reg_m_num_q = $sformatf("reg_model_%0d", i);
+            foreach(reg_m_num_q[i]) begin
+                if(clp.get_arg_value($sformatf("+REG_NUM_%0d=", i), reg_num_str)) begin
+                    reg_num_q.push_back(reg_num_str.atoi());
+                    foreach(reg_num_str.atoi) begin
+                        if(clp.get_arg_value($sformatf("+REG_FIELD_NUM_FOR_REG_NUM_%0d=", i), reg_field_num_str)) begin
+                            reg_field_num_q.push_back(reg_field_num_str.atoi());
+                            foreach(reg_field_num_str.atoi()) begin
+                                if(clp.get_arg_value($sformatf("+REG_FIELD_NUM_WIDTH_FOR_REG_NUM_%0d=", i), reg_field_num_width_str)) begin
+                                    reg_field_width_num_q.push_back(reg_field_num_width_str.atoi());
+                                        
+                                end
+                            end                         
+                        end
+                    end                    
+                end
+            end
+        end
+        if(clp.get_arg_value("+TX_DATA_WIDTH=", tx_data_width_str)) begin
+        tx_data_width = tx_data_width_str.atoi();
+        end
+
+        if(clp.get_arg_value("+STOP_BITS_WIDTH=", stop_bits_width_str)) begin
+        stop_bits_width = stop_bits_width_str.atoi();
+        end 
+
+    endfunction
+
 
     //------------------------------------------
-    // Constructor for the monironment component
+    // Construc tor for the monironment component
     //------------------------------------------
     function new(string name = "", uvm_component parent);
         super.new(name, parent);
